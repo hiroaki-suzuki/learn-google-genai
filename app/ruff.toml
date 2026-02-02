@@ -1,0 +1,9 @@
+target-version = "py314"
+line-length = 88
+indent-width = 4
+
+[format]
+docstring-code-format = true
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]

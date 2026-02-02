@@ -1,0 +1,60 @@
+{
+    "name": "Learn google-genai",
+    "build": {
+        "dockerfile": "./Dockerfile"
+    },
+    "runArgs": [
+        "--name",
+        "leanr-google-genai-devcontainer"
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2.5.5": {
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {
+            "version": "0.9.24",
+            "shellautocompletion": true
+        },
+        "ghcr.io/devcontainers/features/node:1.6.3": {
+            "version": "24.13.0"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "astral-sh.ty",
+                "charliermarsh.ruff",
+                "ms-python.python",
+                "ms-python.debugpy",
+                "njpwerner.autodocstring",
+                "codezombiech.gitignore",
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "ryu1kn.partial-diff",
+                "streetsidesoftware.code-spell-checker",
+                "tamasfe.even-better-toml",
+                "tyriar.sort-lines",
+                "wayou.vscode-todo-highlight",
+                "yzhang.markdown-all-in-one",
+                "anthropic.claude-code",
+                "openai.chatgpt",
+                "google.gemini-cli-vscode-ide-companion",
+                "google.geminicodeassist"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "containerEnv": {
+        "TZ": "Asia/Tokyo",
+        "UV_ENV_FILE": ".env",
+        "UV_LINK_MODE": "copy",
+        "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+    },
+    "mounts": [
+        "type=volume,source=claude-code-config-${devcontainerId},target=/home/vscode/.claude",
+        "type=volume,source=gemini-cli-config-${devcontainerId},target=/home/vscode/.gemini",
+        "type=volume,source=codex-config-${devcontainerId},target=/home/vscode/.codex"
+    ],
+    "onCreateCommand": "chmod +x .devcontainer/post-create.sh",
+    "postCreateCommand": "bash .devcontainer/post-create.sh"
+}
