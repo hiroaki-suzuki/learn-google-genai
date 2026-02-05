@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+## 言語設定
+- 会話は日本語で実施する
+- 思考や実施して言うことも日本語で出力する
+
 ## プロジェクト概要
 このリポジトリは Google Generative AI (google-genai) SDK を学習するための Python 3.14 プロジェクトです。依存関係は uv で管理し、コード品質は Ruff と Ty を使って確認します。すべてのコマンドは `app/` ディレクトリで実行します。
 
@@ -34,3 +38,6 @@
 ## Security & Configuration Tips
 - API キーは `GEMINI_API_KEY` として `.env` に設定します（`.env.example` を参照）。
 - Google Search grounding は課金対象のため、テストは少数の件数で実施してください。
+
+## 学習フロー補助
+- ユーザーが「学習を開始します」と伝えた場合は `docs/llm_as_judge_plan.md` を読み込み、進捗管理セクションの「現在の進捗」を確認して次のStepから開始する。
