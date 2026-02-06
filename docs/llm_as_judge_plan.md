@@ -145,12 +145,15 @@ https://www.issoh.co.jp/tech/details/8712/
 **参考リンク**:
 - 一次資料（英語）
 ```text
-https://arxiv.org/abs/2403.04132
+https://arxiv.org/abs/2306.05685
 ```
-- 概要理解（日本語）
-```text
-https://llm-jp.nii.ac.jp/ja/blog/blog-836/
-```
+
+**補足**:
+- Pairwise ComparisonはMT-Bench内の比較評価の記述を参照する。
+
+**日本語参考（確認中）**:
+- アクセス可否の再確認後に追記する。
+
 
 **読み方ガイド**:
 - 日本語記事は「経緯」「概要」だけ読む。数式は読み飛ばして問題なし。
@@ -239,6 +242,10 @@ https://www.issoh.co.jp/tech/details/10331/
 
 **小さなアウトプット**:
 - 「自分ならどう対策するか」を1行で書く。
+
+**実装メモ（最小例）**:
+- PairwiseはA/BとB/Aの両方を評価し、勝者一致率をログに残す。
+- Direct Assessmentは回答長を正規化するか、簡潔さを評価観点に含める。
 
 ---
 
@@ -338,7 +345,11 @@ app/
 │   └── llm_judge/
 │       ├── input/
 │       └── output/
-└── main_judge.py
+├── main_judge.py          # 共通モジュール（CLIなし）
+├── main_judge_direct.py
+├── main_judge_pairwise.py
+├── main_judge_refinement.py
+└── main_judge_movie_metadata.py
 ```
 
 **主要モデル設計（参考）**
@@ -359,6 +370,11 @@ class DirectAssessmentResult(BaseModel):
     overall_reasoning: str
 ```
 
+**最小動作の実装メモ**:
+- 1問1答の固定サンプルで動作確認する。
+- Structured Outputの検証失敗時は再試行かフォールバックを用意する。
+- API失敗時はリトライ回数と待機時間を設定する。
+
 ---
 
 ## Step 6: Pairwise Comparison を実装する
@@ -378,6 +394,10 @@ class PairwiseAggregatedResult(BaseModel):
     final_winner: str
     consistency_note: str
 ```
+
+**最小動作の実装メモ**:
+- A/Bの順序を入れ替えた2回の比較を必須とする。
+- 2回の判断が不一致の場合は「不確実」として扱う。
 
 ---
 
@@ -402,6 +422,10 @@ class SelfRefinementResult(BaseModel):
     success: bool
 ```
 
+**最小動作の実装メモ**:
+- 反復回数の上限と終了条件（スコア閾値）を必ず設定する。
+- 改善提案が空の場合は早期終了する。
+
 ---
 
 ## Step 8: 統合・検証・品質チェック
@@ -411,25 +435,25 @@ class SelfRefinementResult(BaseModel):
 1. Direct Assessment実行
 ```bash
 cd app
-uv run main_judge.py --pattern direct
+uv run main_judge_direct.py
 ```
 
 2. Pairwise Comparison実行
 ```bash
 cd app
-uv run main_judge.py --pattern pairwise
+uv run main_judge_pairwise.py
 ```
 
 3. Self-Refinement実行
 ```bash
 cd app
-uv run main_judge.py --pattern refinement
+uv run main_judge_refinement.py
 ```
 
-4. 全パターン統合実行
+4. Movie Metadata評価実行（最新JSONの先頭1件）
 ```bash
 cd app
-uv run main_judge.py --pattern all
+uv run main_judge_movie_metadata.py
 ```
 
 **品質チェック**
@@ -438,6 +462,15 @@ uv run main_judge.py --pattern all
 cd app
 uv run ruff format . && uv run ruff check --fix . && uv run ty check
 ```
+
+**検証用サンプルデータの準備**:
+- 5〜10件の映画メタデータ（正解付き）を用意。
+- 誤り混入ケース（監督名違い、公開年ズレ）を含める。
+
+**コスト管理メモ**:
+- Direct: 1評価=1呼び出し。
+- Pairwise: 1評価=2呼び出し（A/B, B/A）。
+- Self-Refinement: 1評価=N回（反復回数に依存）。
 
 ---
 
