@@ -1,11 +1,63 @@
 {
+    "editor.renderWhitespace": "all",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.tabSize": 4,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        }
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}/app/.venv/bin/python",
+    "python.languageServer": "None",
+    "ruff.path": [
+        "${workspaceFolder}/app/.venv/bin/ruff"
+    ],
+    "ruff.configuration": "${workspaceFolder}/app/ruff.toml",
+    "ty.path": [
+        "${workspaceFolder}/app/.venv/bin/ty"
+    ],
+    "ty.configurationFile": "${workspaceFolder}/app/ty.toml",
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers",
+        "editor.quickSuggestions": {
+            "strings": true
+        }
+    },
+    "[shellscript]": {
+        "files.eol": "\n",
+        "editor.defaultColorDecorators": "never",
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
     "cSpell.words": [
+        "autopep",
         "BLEU",
+        "charliermarsh",
+        "codezombiech",
+        "dbaeumer",
+        "debugpy",
+        "eamodio",
+        "foxundermoon",
+        "geminicodeassist",
         "genai",
         "getenv",
+        "langchain",
+        "langsmith",
+        "mhutchie",
+        "njpwerner",
         "Pydantic",
         "pyproject",
         "Shawshank",
-        "Totoro"
+        "shellautocompletion",
+        "tamasfe",
+        "Totoro",
+        "trixie",
+        "trulens",
+        "tyriar",
+        "wayou",
+        "yazi",
+        "yzhang"
     ]
 }
