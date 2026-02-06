@@ -8,14 +8,14 @@
         "learn-google-genai-devcontainer"
     ],
     "features": {
-        "ghcr.io/devcontainers/features/common-utils:2.5.6": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
             "configureZshAsDefaultShell": true
         },
         "ghcr.io/devcontainer-community/devcontainer-features/astral.sh-uv:1": {
             "version": "0.9.30",
             "shellautocompletion": true
         },
-        "ghcr.io/devcontainers/features/node:1.7.1": {
+        "ghcr.io/devcontainers/features/node:1": {
             "version": "24.13.0"
         }
     },
@@ -50,8 +50,8 @@
     "remoteUser": "vscode",
     "containerEnv": {
         "TZ": "Asia/Tokyo",
-        "LANG": "ja_JP.UTF-8",
-        "LC_ALL": "ja_JP.UTF-8",
+        "LANG": "en_US.UTF-8",
+        "LC_ALL": "en_US.UTF-8",
         "UV_ENV_FILE": ".env",
         "UV_LINK_MODE": "copy",
         "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
@@ -60,9 +60,9 @@
         "type=volume,source=claude-code-config-${devcontainerId},target=/home/vscode/.claude",
         "type=volume,source=gemini-cli-config-${devcontainerId},target=/home/vscode/.gemini",
         "type=volume,source=codex-config-${devcontainerId},target=/home/vscode/.codex",
-        "type=bind,source=${localEnv:HOME}/.claude/settings.json,target=/home/vscode/.claude/settings.json,consistency=cached",
-        "type=bind,source=${localEnv:HOME}/.claude/statusline-command.sh,target=/home/vscode/.claude/statusline-command.sh,consistency=cached"
+        "type=volume,source=tmux-${devcontainerId},target=/home/vscode/.tmux"
     ],
-    "onCreateCommand": "chmod +x .devcontainer/post-create.sh",
-    "postCreateCommand": "bash .devcontainer/post-create.sh"
+    "onCreateCommand": "chmod +x .devcontainer/post-create.sh && chmod +x .devcontainer/post-start.sh",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "postStartCommand": "bash .devcontainer/post-start.sh"
 }
