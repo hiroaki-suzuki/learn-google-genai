@@ -60,7 +60,8 @@
         "type=volume,source=claude-code-config-${devcontainerId},target=/home/vscode/.claude",
         "type=volume,source=gemini-cli-config-${devcontainerId},target=/home/vscode/.gemini",
         "type=volume,source=codex-config-${devcontainerId},target=/home/vscode/.codex",
-        "type=bind,source=${localEnv:HOME}/.claude/settings.json,target=/home/vscode/.claude/settings.json,consistency=cached"
+        "type=bind,source=${localEnv:HOME}/.claude/settings.json,target=/home/vscode/.claude/settings.json,consistency=cached",
+        "type=bind,source=${localEnv:HOME}/.claude/statusline-command.sh,target=/home/vscode/.claude/statusline-command.sh,consistency=cached"
     ],
     "onCreateCommand": "chmod +x .devcontainer/post-create.sh",
     "postCreateCommand": "bash .devcontainer/post-create.sh"
