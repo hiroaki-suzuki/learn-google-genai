@@ -26,19 +26,16 @@
             "strings": true
         }
     },
-    "[shellscript]": {
-        "files.eol": "\n",
-        "editor.defaultColorDecorators": "never",
-        "editor.defaultFormatter": "foxundermoon.shell-format"
-    },
     "cSpell.words": [
         "autopep",
         "BLEU",
+        "catppuccin",
         "charliermarsh",
         "codezombiech",
         "dbaeumer",
         "debugpy",
         "eamodio",
+        "fdisk",
         "foxundermoon",
         "geminicodeassist",
         "genai",
@@ -46,8 +43,11 @@
         "langchain",
         "langsmith",
         "mhutchie",
+        "netcat",
+        "netrc",
         "njpwerner",
         "Pydantic",
+        "pypirc",
         "pyproject",
         "Shawshank",
         "shellautocompletion",
@@ -60,5 +60,15 @@
         "wayou",
         "yazi",
         "yzhang"
-    ]
+    ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ruff_cache": true,
+    }
 }
