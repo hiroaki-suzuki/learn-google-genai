@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 import main_refine
+from movie_metadata.csv_reader import CSVReader
 from movie_metadata.models import (
     MetadataEvaluationResult,
     MetadataFieldScore,
@@ -107,3 +108,35 @@ def test_main_refine_uses_csv_filename_env(monkeypatch, mocker, sample_refinemen
 
     expected_csv_path = Path(main_refine.__file__).parent / Path("data/movies_test.csv")
     assert mock_csv_reader.read.call_args.args[0] == expected_csv_path
+
+
+def test_main_refine_processes_all_records_in_movies_csv(
+    mocker, sample_refinement_result
+):
+    """movies.csvの全レコードが処理されることを確認"""
+    csv_path = Path(main_refine.__file__).parent / Path("data/movies.csv")
+    expected_count = len(CSVReader().read(csv_path))
+    assert expected_count > 1
+
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=Path("data/output"),
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.return_value = sample_refinement_result
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    main_refine.main()
+
+    assert mock_refiner.refine.call_count == expected_count
+    assert mock_writer.write_batch.call_count == 1
