@@ -147,12 +147,12 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、プロジェクト全体のコードカバレッジが90%以上であることを確認し、必要に応じて追加テストを実装したい。
 
 **受け入れ基準:**
-- [ ] `uv run pytest --cov=movie_metadata --cov-report=term-missing --cov-report=html`を実行する
-- [ ] プロジェクト全体のカバレッジが90%以上であることを確認する
-- [ ] 90%未満の場合、不足しているモジュールに追加テストを実装する
-- [ ] すべてのテストが成功することを確認する（`uv run pytest tests/ -v`）
-- [ ] 最終的なカバレッジレポートをprogress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] `uv run pytest --cov=movie_metadata --cov-report=term-missing --cov-report=html`を実行する
+- [x] プロジェクト全体のカバレッジが90%以上であることを確認する
+- [x] 90%未満の場合、不足しているモジュールに追加テストを実装する
+- [x] すべてのテストが成功することを確認する（`uv run pytest tests/ -v`）
+- [x] 最終的なカバレッジレポートをprogress.txtに記録する
+- [x] 型チェックが通過する
 
 ## 対象外項目
 

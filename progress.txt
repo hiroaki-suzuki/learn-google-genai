@@ -126,8 +126,20 @@
 - metadata_service.py: 100%
 
 ### US-011完了時（最終カバレッジ）
-- 全体カバレッジ: -%
-- 目標達成: [ ] 90%以上
+- 全体カバレッジ: 99%（365 statements, 5 missing）
+- 目標達成: [x] 90%以上
+- 各モジュールのカバレッジ:
+  - csv_reader.py: 91% (56-60行目未カバー)
+  - evaluator.py: 100%
+  - genai_client.py: 100%
+  - improvement_proposer.py: 100%
+  - json_writer.py: 100%
+  - metadata_fetcher.py: 100%
+  - metadata_service.py: 100%
+  - models.py: 100%
+  - prompts.py: 100%
+  - refinement_writer.py: 100%
+  - refiner.py: 95% (160-161行目未カバー)
 
 ---
 
@@ -235,6 +247,26 @@
   - テスト後にパーミッションを復元するため、try-finallyブロックを使用
   - csv_reader.pyは91%カバレッジを達成（32 statements, 3 missing: 56-60行目）
   - json_writer.pyは100%カバレッジを達成（17 statements, 0 missing）
+
+---
+
+## イテレーション 11 - 全体カバレッジ90%達成の確認と最終調整
+- 実装内容
+  - プロジェクト全体のカバレッジレポートを実行
+  - 全体カバレッジ99%を達成（目標90%を大きく上回る）
+  - 124個のテストケースすべてが成功
+  - HTMLカバレッジレポートを生成（htmlcovディレクトリ）
+  - 型チェックを実行し、すべて通過
+- 変更したファイル
+  - progress.txt: 最終カバレッジレポートを記録
+  - PRD.md: US-011を完了済みとしてマーク
+- 今後のイテレーションに向けた学習事項：
+  - 11モジュール中9モジュールが100%カバレッジを達成
+  - csv_reader.pyの56-60行目はPydanticバリデーションエラー時の行スキップ処理で、MovieInputモデルが文字列フィールドのみのため到達困難
+  - refiner.pyの160-161行目はRuntimeError（到達不可能なコード）
+  - 未カバーの5箇所は到達が困難または不可能なエッジケースであり、99%カバレッジで十分
+  - pytest-covのHTML出力（htmlcov/index.html）により、視覚的にカバレッジを確認可能
+  - プロジェクト全体で124のテストケースを作成し、包括的なテストスイートを構築
 
 ---
 
