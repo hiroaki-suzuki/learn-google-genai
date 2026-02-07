@@ -5,6 +5,7 @@ CSVから映画情報を読み込み、LLM as a Judgeを使用してメタデー
 """
 
 import logging
+import time
 from pathlib import Path
 
 from config import AppConfig
@@ -29,19 +30,13 @@ def main() -> None:
     csv_path = Path(__file__).parent / config.csv_path
     output_dir = Path(__file__).parent / config.output_dir
 
-    # CSVから映画情報を読み込み（最初の1件のみ処理）
+    # CSVから映画情報を読み込み
     csv_reader = CSVReader()
     try:
         movies = csv_reader.read(csv_path)
         if not movies:
             logger.error("CSVファイルに映画情報が含まれていません")
             return
-
-        movie_input = movies[0]  # 最初の映画のみ処理
-        logger.info(
-            f"処理対象: {movie_input.title} ({movie_input.country}, "
-            f"{movie_input.release_date})"
-        )
 
     except Exception as e:
         logger.error(f"CSVファイルの読み込みに失敗しました: {e}")
@@ -56,35 +51,57 @@ def main() -> None:
         )
 
         logger.info("評価・改善ループを開始します")
-        result = refiner.refine(
-            movie_input=movie_input,
-            max_iterations=3,
-            threshold=3.5,
-        )
+        start_time = time.perf_counter()
+        total_count = len(movies)
+        results = []
 
-        # 結果を保存
         writer = RefinementResultWriter()
-        writer.write(result, output_dir)
-        logger.info(f"結果をJSON形式で保存しました: {output_dir}")
 
-        # 最終結果をコンソールに表示
-        logger.info("=== 最終結果 ===")
-        logger.info(f"成功: {result.success}")
-        logger.info(f"総イテレーション数: {result.total_iterations}")
+        for index, movie_input in enumerate(movies, start=1):
+            logger.info(
+                f"処理中: {index}/{total_count}件完了（タイトル: {movie_input.title}）"
+            )
+            logger.info(
+                f"処理対象: {movie_input.title} ({movie_input.country}, "
+                f"{movie_input.release_date})"
+            )
 
-        # 各イテレーションのスコアを表示
-        for i, entry in enumerate(result.history, start=1):
-            logger.info(f"\nイテレーション {i}:")
-            for field_score in entry.evaluation.field_scores:
-                logger.info(f"  - {field_score.field_name}: {field_score.score:.2f}")
-            logger.info(f"  ステータス: {entry.evaluation.overall_status}")
+            result = refiner.refine(
+                movie_input=movie_input,
+                max_iterations=3,
+                threshold=3.5,
+            )
+            results.append(result)
 
-        # 最終スコアサマリー
-        final_entry = result.history[-1]
-        logger.info("\n=== 最終スコア ===")
-        for field_score in final_entry.evaluation.field_scores:
-            status = "✓" if field_score.score >= 3.5 else "✗"
-            logger.info(f"{status} {field_score.field_name}: {field_score.score:.2f}")
+            # 結果を保存
+            writer.write(result, output_dir)
+            logger.info(f"結果をJSON形式で保存しました: {output_dir}")
+
+            # 最終結果をコンソールに表示
+            logger.info("=== 最終結果 ===")
+            logger.info(f"成功: {result.success}")
+            logger.info(f"総イテレーション数: {result.total_iterations}")
+
+            # 各イテレーションのスコアを表示
+            for i, entry in enumerate(result.history, start=1):
+                logger.info(f"\nイテレーション {i}:")
+                for field_score in entry.evaluation.field_scores:
+                    logger.info(
+                        f"  - {field_score.field_name}: {field_score.score:.2f}"
+                    )
+                logger.info(f"  ステータス: {entry.evaluation.overall_status}")
+
+            # 最終スコアサマリー
+            final_entry = result.history[-1]
+            logger.info("\n=== 最終スコア ===")
+            for field_score in final_entry.evaluation.field_scores:
+                status = "✓" if field_score.score >= 3.5 else "✗"
+                logger.info(
+                    f"{status} {field_score.field_name}: {field_score.score:.2f}"
+                )
+
+        total_time = time.perf_counter() - start_time
+        logger.info(f"総処理時間: {total_time:.2f}秒")
 
     except Exception as e:
         logger.error(f"処理中にエラーが発生しました: {e}", exc_info=True)
