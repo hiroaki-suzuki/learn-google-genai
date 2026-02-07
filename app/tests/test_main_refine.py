@@ -155,6 +155,41 @@ def test_main_refine_continues_after_error(mocker, sample_movie_metadata):
     assert titles == {"Movie A", "Movie C"}
 
 
+def test_main_refine_logs_error_summary_for_multiple_errors(mocker, caplog):
+    """複数エラー時にエラーサマリーが出力されることを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=Path("data/output"),
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [
+        MovieInput(title="Movie A", release_date="2024-01-01", country="Japan"),
+        MovieInput(title="Movie B", release_date="2024-01-02", country="Japan"),
+    ]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.side_effect = [RuntimeError("boom"), RuntimeError("boom")]
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    with caplog.at_level("ERROR"):
+        main_refine.main()
+
+    assert "エラー件数: 2" in caplog.text
+    assert "エラーが発生した映画: Movie A, Movie B" in caplog.text
+
+
 def test_main_refine_logs_progress_for_each_record(
     mocker, caplog, sample_refinement_result
 ):
