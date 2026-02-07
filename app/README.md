@@ -26,7 +26,7 @@ uv run main.py
 
 ```bash
 cd /workspaces/learn-google-genai/app
-uv run python -c "from pathlib import Path; from movie_metadata.csv_reader import CSVReader; from movie_metadata.metadata_fetcher import fetch_movie_metadata; from movie_metadata.json_writer import write_metadata_to_json; import os; reader = CSVReader(); movies = reader.read(Path('data/movies_test.csv')); api_key = os.getenv('GEMINI_API_KEY'); metadata_list = [fetch_movie_metadata(movies[0], api_key)]; write_metadata_to_json(metadata_list, 'data/output/test_output.json')"
+uv run python -c "from pathlib import Path; from movie_metadata.csv_reader import CSVReader; from movie_metadata.metadata_fetcher import fetch_movie_metadata; from movie_metadata.json_writer import JSONWriter; import os; reader = CSVReader(); movies = reader.read(Path('data/movies_test.csv')); api_key = os.getenv('GEMINI_API_KEY'); metadata_list = [fetch_movie_metadata(movies[0], api_key)]; JSONWriter().write(metadata_list, Path('data/output/test_output.json'))"
 ```
 
 ### テスト用（3件）

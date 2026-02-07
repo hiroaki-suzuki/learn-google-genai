@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from movie_metadata.json_writer import write_metadata_to_json
+from movie_metadata.json_writer import JSONWriter
 from movie_metadata.models import MovieMetadata
 
 
@@ -13,9 +13,10 @@ def test_write_metadata_to_json(
     """正常なJSON書き込みテスト"""
     # Arrange
     output_file = tmp_path / "output.json"
+    writer = JSONWriter()
 
     # Act
-    write_metadata_to_json([sample_movie_metadata], str(output_file))
+    writer.write([sample_movie_metadata], output_file)
 
     # Assert
     assert output_file.exists()
@@ -44,9 +45,10 @@ def test_write_metadata_to_json_multiple_items(tmp_path: Path) -> None:
         for i in range(1, 4)
     ]
     output_file = tmp_path / "output.json"
+    writer = JSONWriter()
 
     # Act
-    write_metadata_to_json(metadata_list, str(output_file))
+    writer.write(metadata_list, output_file)
 
     # Assert
     assert output_file.exists()
@@ -63,9 +65,10 @@ def test_write_metadata_to_json_creates_directory(
     """ディレクトリが存在しない場合に作成するテスト"""
     # Arrange
     output_file = tmp_path / "subdir" / "nested" / "output.json"
+    writer = JSONWriter()
 
     # Act
-    write_metadata_to_json([sample_movie_metadata], str(output_file))
+    writer.write([sample_movie_metadata], output_file)
 
     # Assert
     assert output_file.exists()
@@ -87,9 +90,10 @@ def test_write_metadata_to_json_japanese_characters(tmp_path: Path) -> None:
         voice_actors=["柊瑠美", "入野自由"],
     )
     output_file = tmp_path / "output.json"
+    writer = JSONWriter()
 
     # Act
-    write_metadata_to_json([metadata], str(output_file))
+    writer.write([metadata], output_file)
 
     # Assert
     with output_file.open(encoding="utf-8") as f:

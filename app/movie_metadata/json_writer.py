@@ -51,19 +51,3 @@ class JSONWriter:
         except Exception as e:
             logger.error(f"Failed to write JSON file: {e}")
             raise OSError(f"JSONファイルの書き込みに失敗しました: {e}") from e
-
-
-def write_metadata_to_json(
-    metadata_list: list[MovieMetadata],
-    output_path: str,
-) -> None:
-    """メタデータをJSON形式で出力（後方互換関数）
-
-    Args:
-        metadata_list: MovieMetadataのリスト
-        output_path: 出力先JSONファイルのパス
-
-    Raises:
-        OSError: ファイル書き込みに失敗した場合
-    """
-    JSONWriter().write(metadata_list, Path(output_path))
