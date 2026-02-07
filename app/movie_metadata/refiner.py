@@ -52,8 +52,12 @@ class MetadataRefiner:
         self.default_threshold = config.quality_score_threshold
 
         # 評価器と改善提案器を初期化
-        self.evaluator = MetadataEvaluator(api_key=api_key, model_name=model_name)
-        self.proposer = ImprovementProposer(api_key=api_key, model_name=model_name)
+        self.evaluator = MetadataEvaluator(
+            api_key=api_key, model_name=model_name, threshold=self.default_threshold
+        )
+        self.proposer = ImprovementProposer(
+            api_key=api_key, model_name=model_name, threshold=self.default_threshold
+        )
 
         logger.info(
             f"MetadataRefinerを初期化しました（モデル: {model_name}, "
@@ -65,7 +69,6 @@ class MetadataRefiner:
         self,
         movie_input: MovieInput,
         max_iterations: int = 3,
-        threshold: float | None = None,
     ) -> MetadataRefinementResult:
         """メタデータを改善する
 
@@ -85,9 +88,7 @@ class MetadataRefiner:
             Exception: メタデータ取得、評価、改善提案のいずれかに失敗した場合
             ValueError: thresholdが0.0～5.0の範囲外の場合
         """
-        # thresholdが未指定の場合、環境変数から読み込んだデフォルト値を使用
-        if threshold is None:
-            threshold = self.default_threshold
+        threshold = self.default_threshold
 
         # バリデーション: thresholdは0.0～5.0の範囲内である必要がある
         if not isinstance(threshold, (int, float)):
@@ -101,6 +102,10 @@ class MetadataRefiner:
                 f"（受け取った値: {threshold}）"
             )
             raise ValueError(msg)
+
+        # evaluatorとproposerの閾値を更新
+        self.evaluator.threshold = threshold
+        self.proposer.threshold = threshold
 
         logger.info(
             f"メタデータ改善ループを開始します（最大イテレーション: {max_iterations}, "

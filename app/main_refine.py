@@ -69,10 +69,11 @@ def main() -> None:
             )
 
             try:
+                threshold = config.quality_score_threshold
                 result = refiner.refine(
                     movie_input=movie_input,
                     max_iterations=3,
-                    threshold=3.5,
+                    threshold=threshold,
                 )
                 results.append(result)
 
@@ -94,7 +95,7 @@ def main() -> None:
                 final_entry = result.history[-1]
                 logger.info("\n=== 最終スコア ===")
                 for field_score in final_entry.evaluation.field_scores:
-                    status = "✓" if field_score.score >= 3.5 else "✗"
+                    status = "✓" if field_score.score >= threshold else "✗"
                     logger.info(
                         f"{status} {field_score.field_name}: {field_score.score:.2f}"
                     )

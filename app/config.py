@@ -49,7 +49,7 @@ class AppConfig(BaseSettings):
     rate_limit_sleep: float = Field(default=1.0)
     log_level: str = Field(default="INFO")
     quality_score_threshold: float = Field(
-        default=0.8, validation_alias="QUALITY_SCORE_THRESHOLD"
+        default=4.0, validation_alias="QUALITY_SCORE_THRESHOLD"
     )
 
     @field_validator("csv_path", mode="before")

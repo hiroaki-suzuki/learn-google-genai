@@ -16,7 +16,7 @@ from movie_metadata.models import (
 
 @pytest.fixture
 def sample_evaluation_result_pass() -> MetadataEvaluationResult:
-    """すべてのフィールドが3.5以上（pass）の評価結果"""
+    """すべてのフィールドが閾値以上（pass）の評価結果"""
     return MetadataEvaluationResult(
         iteration=1,
         field_scores=[
@@ -41,7 +41,7 @@ def sample_evaluation_result_pass() -> MetadataEvaluationResult:
 
 @pytest.fixture
 def sample_evaluation_result_fail() -> MetadataEvaluationResult:
-    """1つ以上のフィールドが3.5未満（fail）の評価結果"""
+    """1つ以上のフィールドが閾値未満（fail）の評価結果"""
     return MetadataEvaluationResult(
         iteration=2,
         field_scores=[
@@ -68,9 +68,12 @@ def sample_evaluation_result_fail() -> MetadataEvaluationResult:
 
 def test_proposer_initialization():
     """ImprovementProposerの初期化テスト"""
-    proposer = ImprovementProposer(api_key="test_key", model_name="gemini-2.0-flash")
+    proposer = ImprovementProposer(
+        api_key="test_key", model_name="gemini-2.0-flash", threshold=3.5
+    )
     assert proposer.api_key == "test_key"
     assert proposer.model_name == "gemini-2.0-flash"
+    assert proposer.threshold == 3.5
 
 
 def test_propose_pass_status(

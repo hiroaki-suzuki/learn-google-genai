@@ -67,7 +67,7 @@ class TestBuildMetadataEvaluationPrompt:
         # プロンプトに評価基準の説明が含まれていることを確認
         assert "評価基準" in prompt
         assert "0.0〜5.0" in prompt
-        assert "3.5以上" in prompt
+        assert "閾値" in prompt
 
     def test_build_prompt_with_empty_lists(self):
         """空のリストでプロンプトが構築されることを確認"""
@@ -170,7 +170,7 @@ class TestBuildImprovementProposalPrompt:
             field_scores=[
                 MetadataFieldScore(
                     field_name="japanese_titles",
-                    score=4.0,
+                    score=4.5,
                     reasoning="十分な情報が含まれている",
                 ),
                 MetadataFieldScore(
@@ -187,6 +187,7 @@ class TestBuildImprovementProposalPrompt:
             movie_input=movie_input,
             current_metadata=current_metadata,
             evaluation=evaluation,
+            threshold=4.5,
         )
 
         # プロンプトに映画情報が含まれていることを確認
@@ -196,7 +197,7 @@ class TestBuildImprovementProposalPrompt:
 
         # プロンプトに評価結果が含まれていることを確認
         assert "japanese_titles" in prompt
-        assert "4.0" in prompt
+        assert "4.5" in prompt
         assert "✓ 合格" in prompt
         assert "box_office" in prompt
         assert "2.0" in prompt
@@ -247,6 +248,7 @@ class TestBuildImprovementProposalPrompt:
             movie_input=movie_input,
             current_metadata=current_metadata,
             evaluation=evaluation,
+            threshold=4.5,
         )
 
         # プロンプトに映画情報が含まれていることを確認
@@ -294,6 +296,7 @@ class TestBuildImprovementProposalPrompt:
             movie_input=movie_input,
             current_metadata=current_metadata,
             evaluation=evaluation,
+            threshold=4.5,
         )
 
         # プロンプトに映画情報が含まれていることを確認

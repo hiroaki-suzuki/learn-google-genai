@@ -24,17 +24,24 @@ class MetadataEvaluator:
     Args:
         api_key: Google GenAI APIキー
         model_name: 使用するモデル名（デフォルト: gemini-2.0-flash）
+        threshold: 合格判定の閾値（デフォルト: 4.0）
 
     Examples:
-        evaluator = MetadataEvaluator(api_key="YOUR_KEY")
+        evaluator = MetadataEvaluator(api_key="YOUR_KEY", threshold=4.0)
         result = evaluator.evaluate(metadata, iteration=1)
         print(f"Overall status: {result.overall_status}")
     """
 
-    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash") -> None:
+    def __init__(
+        self, api_key: str, model_name: str = "gemini-2.0-flash", threshold: float = 4.0
+    ) -> None:
         self.api_key = api_key
         self.model_name = model_name
-        logger.info(f"MetadataEvaluatorを初期化しました（モデル: {model_name}）")
+        self.threshold = threshold
+        logger.info(
+            f"MetadataEvaluatorを初期化しました（モデル: {model_name}, "
+            f"閾値: {threshold}）"
+        )
 
     def evaluate(
         self, metadata: MovieMetadata, iteration: int = 1
@@ -94,13 +101,16 @@ class MetadataEvaluator:
                 raise
 
         # 4. overall_statusを計算
-        # すべてのフィールドが3.5以上なら"pass"、1つでも3.5未満なら"fail"
-        all_pass = all(score.score >= 3.5 for score in output.field_scores)
+        # すべてのフィールドが閾値以上なら"pass"、1つでも閾値未満なら"fail"
+        all_pass = all(score.score >= self.threshold for score in output.field_scores)
         overall_status = "pass" if all_pass else "fail"
 
         # 平均スコアを計算
         avg_score = sum(s.score for s in output.field_scores) / len(output.field_scores)
-        logger.info(f"評価結果: {overall_status} (平均スコア: {avg_score:.2f})")
+        logger.info(
+            f"評価結果: {overall_status} (平均スコア: {avg_score:.2f}, "
+            f"閾値: {self.threshold})"
+        )
 
         # 5. MetadataEvaluationResultを構築して返す
         return MetadataEvaluationResult(

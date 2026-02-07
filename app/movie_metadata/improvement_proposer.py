@@ -24,17 +24,24 @@ class ImprovementProposer:
     Args:
         api_key: Google GenAI APIキー
         model_name: 使用するモデル名（デフォルト: gemini-2.0-flash）
+        threshold: 品質スコアの閾値（デフォルト: 4.0）
 
     Examples:
-        proposer = ImprovementProposer(api_key="YOUR_KEY")
+        proposer = ImprovementProposer(api_key="YOUR_KEY", threshold=4.0)
         proposal = proposer.propose(movie_input, metadata, evaluation)
         print(proposal)
     """
 
-    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash") -> None:
+    def __init__(
+        self, api_key: str, model_name: str = "gemini-2.0-flash", threshold: float = 4.0
+    ) -> None:
         self.api_key = api_key
         self.model_name = model_name
-        logger.info(f"ImprovementProposerを初期化しました（モデル: {model_name}）")
+        self.threshold = threshold
+        logger.info(
+            f"ImprovementProposerを初期化しました（モデル: {model_name}, "
+            f"閾値: {threshold}）"
+        )
 
     def propose(
         self,
@@ -61,9 +68,9 @@ class ImprovementProposer:
             f"タイトル: {movie_input.title}）"
         )
 
-        # すべてのフィールドが3.5以上の場合は提案不要
+        # すべてのフィールドが閾値以上の場合は提案不要
         if evaluation.overall_status == "pass":
-            logger.info("すべてのフィールドが閾値3.5以上です。改善の必要はありません。")
+            logger.info("すべてのフィールドが閾値以上です。改善の必要はありません。")
             return "改善の必要なし"
 
         # 1. プロンプト構築
@@ -71,6 +78,7 @@ class ImprovementProposer:
             movie_input=movie_input,
             current_metadata=current_metadata,
             evaluation=evaluation,
+            threshold=self.threshold,
         )
 
         # 2. GenAIClientで改善提案を生成

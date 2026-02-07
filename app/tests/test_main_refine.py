@@ -52,6 +52,7 @@ def test_main_refine_records_errors_and_writes_batch(
         log_level="INFO",
         csv_path=Path("data/movies.csv"),
         output_dir=Path("data/output"),
+        quality_score_threshold=3.5,
     )
     mocker.patch("main_refine.AppConfig", return_value=dummy_config)
     mocker.patch("main_refine.setup_logging")
@@ -96,6 +97,7 @@ def test_main_refine_continues_after_error(mocker, sample_movie_metadata):
         log_level="INFO",
         csv_path=Path("data/movies.csv"),
         output_dir=Path("data/output"),
+        quality_score_threshold=3.5,
     )
     mocker.patch("main_refine.AppConfig", return_value=dummy_config)
     mocker.patch("main_refine.setup_logging")
@@ -164,6 +166,7 @@ def test_main_refine_logs_error_summary_for_multiple_errors(mocker, caplog):
         log_level="INFO",
         csv_path=Path("data/movies.csv"),
         output_dir=Path("data/output"),
+        quality_score_threshold=3.5,
     )
     mocker.patch("main_refine.AppConfig", return_value=dummy_config)
     mocker.patch("main_refine.setup_logging")
@@ -201,6 +204,7 @@ def test_main_refine_logs_progress_for_each_record(
         log_level="INFO",
         csv_path=Path("data/movies.csv"),
         output_dir=Path("data/output"),
+        quality_score_threshold=3.5,
     )
     mocker.patch("main_refine.AppConfig", return_value=dummy_config)
     mocker.patch("main_refine.setup_logging")
@@ -268,6 +272,7 @@ def test_main_refine_processes_all_records_in_movies_csv(
         log_level="INFO",
         csv_path=Path("data/movies.csv"),
         output_dir=Path("data/output"),
+        quality_score_threshold=3.5,
     )
     mocker.patch("main_refine.AppConfig", return_value=dummy_config)
     mocker.patch("main_refine.setup_logging")

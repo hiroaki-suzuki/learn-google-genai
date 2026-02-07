@@ -83,11 +83,11 @@ class MetadataEvaluationResult(BaseModel):
     field_scores: list[MetadataFieldScore] = Field(description="各フィールドのスコア")
     overall_status: str = Field(
         description=(
-            "全体のステータス（'pass': すべて3.5以上, 'fail': 1つ以上が3.5未満）"
+            "全体のステータス（'pass': すべて閾値以上, 'fail': 1つ以上が閾値未満）"
         )
     )
     improvement_suggestions: str = Field(
-        description="改善提案（スコアが3.5未満のフィールドに対する具体的な提案）"
+        description="改善提案（スコアが閾値未満のフィールドに対する具体的な提案）"
     )
 
 
@@ -106,7 +106,7 @@ class MetadataRefinementResult(BaseModel):
 
     final_metadata: MovieMetadata = Field(description="最終的なメタデータ")
     history: list[RefinementHistoryEntry] = Field(description="全イテレーションの履歴")
-    success: bool = Field(description="すべてのフィールドが閾値3.5以上を達成したか")
+    success: bool = Field(description="すべてのフィールドが閾値以上を達成したか")
     total_iterations: int = Field(description="実行したイテレーション数")
 
 
@@ -128,5 +128,5 @@ class MetadataEvaluationOutput(BaseModel):
 
     field_scores: list[MetadataFieldScore] = Field(description="各フィールドのスコア")
     improvement_suggestions: str = Field(
-        description="改善提案（スコアが3.5未満のフィールドに対する具体的な提案。すべて3.5以上なら'なし'）"
+        description="改善提案（スコアが閾値未満のフィールドに対する具体的な提案。すべて閾値以上なら'なし'）"
     )

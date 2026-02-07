@@ -15,7 +15,7 @@ from movie_metadata.models import (
 
 @pytest.fixture
 def sample_evaluation_output_pass() -> MetadataEvaluationOutput:
-    """すべてのフィールドが3.5以上（pass）の評価結果"""
+    """すべてのフィールドが閾値以上（pass）の評価結果"""
     return MetadataEvaluationOutput(
         field_scores=[
             MetadataFieldScore(
@@ -71,7 +71,7 @@ def sample_evaluation_output_pass() -> MetadataEvaluationOutput:
 
 @pytest.fixture
 def sample_evaluation_output_fail() -> MetadataEvaluationOutput:
-    """1つ以上のフィールドが3.5未満（fail）の評価結果"""
+    """1つ以上のフィールドが閾値未満（fail）の評価結果"""
     return MetadataEvaluationOutput(
         field_scores=[
             MetadataFieldScore(
@@ -138,8 +138,8 @@ def test_evaluate_success_pass(
     sample_movie_metadata: MovieMetadata,
     sample_evaluation_output_pass: MetadataEvaluationOutput,
 ):
-    """evaluate()の正常系テスト（すべてのフィールドが3.5以上でpass）"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    """evaluate()の正常系テスト（すべてのフィールドが閾値以上でpass）"""
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     # GenAIClientをモック化
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
@@ -166,8 +166,8 @@ def test_evaluate_success_fail(
     sample_movie_metadata: MovieMetadata,
     sample_evaluation_output_fail: MetadataEvaluationOutput,
 ):
-    """evaluate()の正常系テスト（1つ以上のフィールドが3.5未満でfail）"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    """evaluate()の正常系テスト（1つ以上のフィールドが閾値未満でfail）"""
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     # GenAIClientをモック化
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
@@ -195,7 +195,7 @@ def test_evaluate_with_default_iteration(
     sample_evaluation_output_pass: MetadataEvaluationOutput,
 ):
     """evaluate()のデフォルトiteration値テスト"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
@@ -213,7 +213,7 @@ def test_evaluate_with_default_iteration(
 
 def test_evaluate_api_client_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でClientErrorが発生した場合のテスト"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
@@ -229,7 +229,7 @@ def test_evaluate_api_client_error(sample_movie_metadata: MovieMetadata):
 
 def test_evaluate_api_server_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でServerErrorが発生した場合のテスト"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
@@ -245,7 +245,7 @@ def test_evaluate_api_server_error(sample_movie_metadata: MovieMetadata):
 
 def test_evaluate_api_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でAPIErrorが発生した場合のテスト"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
@@ -261,7 +261,7 @@ def test_evaluate_api_error(sample_movie_metadata: MovieMetadata):
 
 def test_evaluate_unexpected_error(sample_movie_metadata: MovieMetadata):
     """evaluate()で予期しないエラーが発生した場合のテスト"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
@@ -277,7 +277,7 @@ def test_evaluate_unexpected_error(sample_movie_metadata: MovieMetadata):
 
 def test_evaluate_boundary_score_all_exactly_3_5(sample_movie_metadata: MovieMetadata):
     """すべてのスコアがちょうど3.5の境界値テスト（pass判定）"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     boundary_output = MetadataEvaluationOutput(
         field_scores=[
@@ -299,13 +299,13 @@ def test_evaluate_boundary_score_all_exactly_3_5(sample_movie_metadata: MovieMet
 
         result = evaluator.evaluate(sample_movie_metadata)
 
-        # 3.5以上なのでpass判定になることを確認
+        # 閾値以上なのでpass判定になることを確認
         assert result.overall_status == "pass"
 
 
 def test_evaluate_boundary_score_one_below_3_5(sample_movie_metadata: MovieMetadata):
-    """1つのスコアが3.5未満の境界値テスト（fail判定）"""
-    evaluator = MetadataEvaluator(api_key="test_key")
+    """1つのスコアが閾値未満の境界値テスト（fail判定）"""
+    evaluator = MetadataEvaluator(api_key="test_key", threshold=3.5)
 
     boundary_output = MetadataEvaluationOutput(
         field_scores=[
@@ -327,5 +327,5 @@ def test_evaluate_boundary_score_one_below_3_5(sample_movie_metadata: MovieMetad
 
         result = evaluator.evaluate(sample_movie_metadata)
 
-        # 1つでも3.5未満ならfail判定になることを確認
+        # 1つでも閾値未満ならfail判定になることを確認
         assert result.overall_status == "fail"

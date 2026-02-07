@@ -63,19 +63,19 @@ METADATA_EVALUATION_PROMPT_TEMPLATE = """
 
 1. **完全性 (Completeness)**: 情報が十分に含まれているか
    - 5.0点: 完全で詳細な情報が含まれている
-   - 3.5点: 基本的な情報はあるが、一部不足している
+   - 4.0点以上: 十分な情報があり、基本的に満足できる
    - 2.0点: 情報が大幅に不足している
    - 0.0点: 情報が全くない、または「情報なし」と記載されている
 
 2. **正確性 (Accuracy)**: 情報が正確で信頼できるか
    - 5.0点: 明らかに正確で、詳細度が高い
-   - 3.5点: 概ね正確だが、曖昧な部分がある
+   - 4.0点以上: 概ね正確で、信頼できる
    - 2.0点: 不正確または疑わしい情報を含む
    - 0.0点: 明らかに誤っている
 
 3. **有用性 (Usefulness)**: 情報が有用で価値があるか
    - 5.0点: 非常に有用で、詳細な情報を提供している
-   - 3.5点: 基本的に有用だが、追加情報があればより良い
+   - 4.0点以上: 基本的に有用で、実用的な価値がある
    - 2.0点: 限定的な有用性
    - 0.0点: 全く有用でない
 
@@ -96,13 +96,13 @@ METADATA_EVALUATION_PROMPT_TEMPLATE = """
 
 ## 閾値
 
-**合格基準**: すべてのフィールドが3.5以上
+**合格基準**: すべてのフィールドが設定された閾値以上
 
 ## 出力形式
 
 各フィールドのスコアと理由、および改善提案を提供してください。
-- スコアが3.5未満のフィールドについては、具体的な改善提案を含めてください
-- すべてのフィールドが3.5以上の場合、improvement_suggestionsは「なし」としてください
+- スコアが閾値未満のフィールドについては、具体的な改善提案を含めてください
+- すべてのフィールドが閾値以上の場合、improvement_suggestionsは「なし」としてください
 """
 
 
@@ -224,7 +224,7 @@ IMPROVEMENT_PROPOSAL_PROMPT_TEMPLATE = """
 
 ## タスク
 
-スコアが3.5未満のフィールドについて、以下の形式で改善提案を生成してください：
+スコアが閾値未満のフィールドについて、以下の形式で改善提案を生成してください：
 
 1. **検索クエリの変更案**: より良い情報を得るための具体的な検索キーワード
 2. **情報源の指定**: 参照すべき信頼できる情報源（公式サイト、IMDb、ウィキペディアなど）
@@ -244,7 +244,7 @@ IMPROVEMENT_PROPOSAL_PROMPT_TEMPLATE = """
 - 補完方法: <具体的な補完の指示>
 ```
 
-すべてのフィールドが3.5以上の場合は「改善の必要なし」と記載してください。
+すべてのフィールドが閾値以上の場合は「改善の必要なし」と記載してください。
 """
 
 
@@ -252,6 +252,7 @@ def build_improvement_proposal_prompt(
     movie_input: MovieInput,
     current_metadata: MovieMetadata,
     evaluation: MetadataEvaluationResult,
+    threshold: float,
 ) -> str:
     """メタデータ改善提案用プロンプトを構築
 
@@ -259,6 +260,7 @@ def build_improvement_proposal_prompt(
         movie_input: 映画の基本情報
         current_metadata: 現在のメタデータ
         evaluation: 評価結果
+        threshold: 品質スコアの閾値
 
     Returns:
         構築されたプロンプト
@@ -279,7 +281,7 @@ def build_improvement_proposal_prompt(
     # 評価結果のサマリーを構築
     evaluation_lines = []
     for field_score in evaluation.field_scores:
-        status = "✓ 合格" if field_score.score >= 3.5 else "✗ 要改善"
+        status = "✓ 合格" if field_score.score >= threshold else "✗ 要改善"
         evaluation_lines.append(
             f"- {field_score.field_name}: {field_score.score:.1f}/5.0 {status}\n"
             f"  理由: {field_score.reasoning}"
