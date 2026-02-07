@@ -122,8 +122,8 @@
 - json_writer.py: 100%
 
 ### US-010完了時（genai_client, metadata_service）
-- genai_client.py: -%
-- metadata_service.py: -%
+- genai_client.py: 100%
+- metadata_service.py: 100%
 
 ### US-011完了時（最終カバレッジ）
 - 全体カバレッジ: -%
@@ -235,5 +235,35 @@
   - テスト後にパーミッションを復元するため、try-finallyブロックを使用
   - csv_reader.pyは91%カバレッジを達成（32 statements, 3 missing: 56-60行目）
   - json_writer.pyは100%カバレッジを達成（17 statements, 0 missing）
+
+---
+
+## イテレーション 10 - 既存テストのカバレッジ向上（genai_client, metadata_service）
+- 実装内容
+  - test_genai_client.pyにログ出力検証テスト（TestGenAIClientLoggingクラス）を追加
+    - 初期化時のモデル名ログ
+    - コンテキストマネージャー開始・終了時のログ（例外あり・なし）
+    - close成功時・失敗時のログ
+    - generate_content呼び出し時のパラメータログ
+  - test_metadata_service.pyにログ出力検証テスト（TestMetadataServiceLoggingクラス）を追加
+    - CSV読み込み件数ログ
+    - 処理進捗ログ
+    - 処理完了サマリーログ
+    - メタデータ取得失敗時のエラーログ
+    - すべての取得が失敗した場合のエラーログ
+  - 合計12のテストケースを追加し、すべて成功（全体で40テストケース）
+- 変更したファイル
+  - app/tests/test_genai_client.py: TestGenAIClientLoggingクラスを追加（7テストケース）
+  - app/tests/test_metadata_service.py: TestMetadataServiceLoggingクラスを追加（5テストケース）
+  - PRD.md: US-010を完了済みとしてマーク
+  - progress.txt: genai_client.pyとmetadata_service.pyのカバレッジ100%を記録
+- 今後のイテレーションに向けた学習事項：
+  - genai_client.pyとmetadata_service.pyは既に100%カバレッジを達成していたが、ログ出力の検証テストを追加することで、より包括的なテストスイートになった
+  - caplogフィクスチャを使用してログメッセージの検証を行った
+  - caplog.at_level(logging.INFO)やcaplog.at_level(logging.DEBUG)を使用してログレベルを指定
+  - ログメッセージに期待される文字列が含まれているかをassertで検証
+  - ログ検証は、ユーザーに表示されるメッセージの正確性を担保するために重要
+  - genai_client.pyは100%カバレッジを維持（37 statements, 0 missing）
+  - metadata_service.pyは100%カバレッジを維持（43 statements, 0 missing）
 
 ---

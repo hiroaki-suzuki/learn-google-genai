@@ -1,5 +1,6 @@
 """genai_clientモジュールのテスト"""
 
+import logging
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -266,3 +267,112 @@ class TestGenAIClientContextManager:
 
         # Assert - 内部clientのclose()が3回呼ばれること
         assert mock_genai_client._client.close.call_count == 3
+
+
+class TestGenAIClientLogging:
+    """GenAIClientのログ出力テスト"""
+
+    def test_init_logs_model_info(self, caplog: pytest.LogCaptureFixture) -> None:
+        """初期化時にモデル名をログ出力するテスト"""
+        # Arrange
+        with caplog.at_level(logging.INFO):
+            with patch("movie_metadata.genai_client.genai.Client"):
+                # Act
+                GenAIClient(api_key="test-key", model_name="custom-model")
+
+        # Assert
+        assert "GenAIクライアントを初期化しました（モデル: custom-model）" in caplog.text
+
+    def test_enter_logs_context_entry(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """コンテキストマネージャー開始時にログ出力するテスト"""
+        # Arrange
+        with caplog.at_level(logging.DEBUG):
+            # Act
+            mock_genai_client.__enter__()
+
+        # Assert
+        assert "GenAIクライアントのコンテキストマネージャーに入りました" in caplog.text
+
+    def test_exit_logs_context_exit_without_exception(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """例外なしでコンテキストマネージャー終了時にログ出力するテスト"""
+        # Arrange
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
+        with caplog.at_level(logging.DEBUG):
+            # Act
+            mock_genai_client.__exit__(None, None, None)
+
+        # Assert
+        assert (
+            "GenAIクライアントのコンテキストマネージャーを終了します （例外: なし）"
+            in caplog.text
+        )
+
+    def test_exit_logs_context_exit_with_exception(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """例外ありでコンテキストマネージャー終了時にログ出力するテスト"""
+        # Arrange
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
+        with caplog.at_level(logging.DEBUG):
+            # Act
+            mock_genai_client.__exit__(ValueError, ValueError("test"), None)
+
+        # Assert
+        assert (
+            "GenAIクライアントのコンテキストマネージャーを終了します （例外: あり）"
+            in caplog.text
+        )
+
+    def test_close_logs_success(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """close成功時にログ出力するテスト"""
+        # Arrange
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
+        with caplog.at_level(logging.INFO):
+            # Act
+            mock_genai_client.close()
+
+        # Assert
+        assert (
+            "GenAIクライアントを終了し、リソースを解放しています" in caplog.text
+        )
+
+    def test_close_logs_error_on_failure(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """close失敗時にエラーログを出力するテスト"""
+        # Arrange
+        mock_genai_client._client.close = MagicMock(  # type: ignore[invalid-assignment]
+            side_effect=RuntimeError("close error")
+        )
+        with caplog.at_level(logging.WARNING):
+            # Act
+            mock_genai_client.close()
+
+        # Assert
+        assert "GenAIクライアントのクローズ中にエラーが発生しました" in caplog.text
+        assert "close error" in caplog.text
+
+    def test_generate_content_logs_generation_info(
+        self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """generate_content呼び出し時にログ出力するテスト"""
+        # Arrange
+        mock_response = MagicMock()
+        mock_response.text = "result"
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
+        with caplog.at_level(logging.DEBUG):
+            # Act
+            mock_genai_client.generate_content(
+                "test prompt", response_schema=SampleSchema, use_google_search=True
+            )
+
+        # Assert
+        assert "コンテンツを生成中（モデル: test-model" in caplog.text
+        assert "検索: True" in caplog.text
+        assert "SampleSchema" in caplog.text

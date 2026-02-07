@@ -1,5 +1,6 @@
 """metadata_serviceモジュールのテスト"""
 
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
@@ -375,3 +376,141 @@ class TestMetadataServiceProcess:
         # Act & Assert
         with pytest.raises(FileNotFoundError, match="Not found"):
             service.process(csv_path, output_dir)
+
+
+class TestMetadataServiceLogging:
+    """MetadataServiceのログ出力テスト"""
+
+    def test_process_logs_csv_read_count(
+        self,
+        service: MetadataService,
+        mock_csv_reader: MagicMock,
+        sample_movies: list[MovieInput],
+        sample_metadata_list: list[MovieMetadata],
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """CSVから読み込んだ映画の件数をログ出力するテスト"""
+        # Arrange
+        csv_path = tmp_path / "test.csv"
+        csv_path.touch()
+        output_dir = tmp_path / "output"
+        mock_csv_reader.read.return_value = sample_movies
+
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(service._fetcher, "fetch", side_effect=sample_metadata_list),
+        ):
+            # Act
+            service.process(csv_path, output_dir)
+
+        # Assert
+        assert "CSVから 2 件の映画を読み込みました" in caplog.text
+
+    def test_process_logs_progress(
+        self,
+        service: MetadataService,
+        mock_csv_reader: MagicMock,
+        sample_movies: list[MovieInput],
+        sample_metadata_list: list[MovieMetadata],
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """処理中の映画の進捗をログ出力するテスト"""
+        # Arrange
+        csv_path = tmp_path / "test.csv"
+        csv_path.touch()
+        output_dir = tmp_path / "output"
+        mock_csv_reader.read.return_value = sample_movies
+
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(service._fetcher, "fetch", side_effect=sample_metadata_list),
+        ):
+            # Act
+            service.process(csv_path, output_dir)
+
+        # Assert
+        assert "処理中 [1/2]: Movie 1" in caplog.text
+        assert "処理中 [2/2]: Movie 2" in caplog.text
+
+    def test_process_logs_completion_summary(
+        self,
+        service: MetadataService,
+        mock_csv_reader: MagicMock,
+        sample_movies: list[MovieInput],
+        sample_metadata_list: list[MovieMetadata],
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """処理完了時のサマリーをログ出力するテスト"""
+        # Arrange
+        csv_path = tmp_path / "test.csv"
+        csv_path.touch()
+        output_dir = tmp_path / "output"
+        mock_csv_reader.read.return_value = sample_movies
+
+        with (
+            caplog.at_level(logging.INFO),
+            patch.object(service._fetcher, "fetch", side_effect=sample_metadata_list),
+        ):
+            # Act
+            service.process(csv_path, output_dir)
+
+        # Assert
+        assert "=== 完了: 2/2件成功, 0件失敗 ===" in caplog.text
+
+    def test_process_logs_fetch_error(
+        self,
+        service: MetadataService,
+        mock_csv_reader: MagicMock,
+        sample_movies: list[MovieInput],
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """メタデータ取得失敗時にエラーログを出力するテスト"""
+        # Arrange
+        csv_path = tmp_path / "test.csv"
+        csv_path.touch()
+        output_dir = tmp_path / "output"
+        mock_csv_reader.read.return_value = [sample_movies[0]]
+
+        with (
+            caplog.at_level(logging.ERROR),
+            patch.object(
+                service._fetcher, "fetch", side_effect=RuntimeError("API error")
+            ),
+        ):
+            # Act
+            service.process(csv_path, output_dir)
+
+        # Assert
+        assert "Movie 1 のメタデータ取得に失敗しました" in caplog.text
+        assert "API error" in caplog.text
+
+    def test_process_logs_no_metadata_error(
+        self,
+        service: MetadataService,
+        mock_csv_reader: MagicMock,
+        sample_movies: list[MovieInput],
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """すべての取得が失敗した場合のエラーログテスト"""
+        # Arrange
+        csv_path = tmp_path / "test.csv"
+        csv_path.touch()
+        output_dir = tmp_path / "output"
+        mock_csv_reader.read.return_value = sample_movies
+
+        with (
+            caplog.at_level(logging.ERROR),
+            patch.object(
+                service._fetcher, "fetch", side_effect=RuntimeError("API error")
+            ),
+        ):
+            # Act
+            service.process(csv_path, output_dir)
+
+        # Assert
+        assert "エラー: メタデータを取得できませんでした" in caplog.text
