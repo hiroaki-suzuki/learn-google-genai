@@ -1,43 +1,40 @@
 # Repository Guidelines
 
-## 言語設定
-- 会話は日本語で実施する
-- 思考や実施して言うことも日本語で出力する
-
 ## プロジェクト概要
-このリポジトリは Google Generative AI (google-genai) SDK を学習するための Python 3.14 プロジェクトです。依存関係は uv で管理し、コード品質は Ruff と Ty を使って確認します。すべてのコマンドは `app/` ディレクトリで実行します。
+Google Generative AI (google-genai) SDK の学習用リポジトリです。CSV の映画データを取得し、Google Search grounding で補完して JSON を出力します。主要な実装は `app/` 配下にあります。
 
 ## Project Structure & Module Organization
-- `app/` がメインアプリケーションです。
-- `app/main.py` が実行エントリで、`app/movie_metadata/` にコアロジックがあります。
-- `app/data/` に入力 CSV と出力 JSON の保存先があります（例: `app/data/movies.csv`, `app/data/output/`）。
-- 設定は `app/ruff.toml`, `app/ty.toml`, `app/pyproject.toml` を参照します。
+- `app/`: アプリ本体と依存関係 (`app/pyproject.toml`)
+- `app/movie_metadata/`: CSV 読み込み、メタ情報取得、JSON 出力のコアロジック
+- `app/llm_judge/`: 評価/改善ループ関連ロジック
+- `app/tests/`: pytest テスト (`test_*.py`)
+- `app/data/`: サンプル CSV と出力 JSON
+- `docs/`, `plans/`: 仕様・計画ドキュメント
 
 ## Build, Test, and Development Commands
-- `cd app && uv sync` 依存関係の同期。
-- `cd app && uv run main.py` アプリケーション実行。
-- `cd app && uv run ruff format .` フォーマット。
-- `cd app && uv run ruff check .` リント。
-- `cd app && uv run ty check` 型チェック。
+すべて `app/` ディレクトリで実行します。
+- `uv sync`: 依存関係のインストール/同期
+- `uv run main.py`: メイン実行（映画データを処理）
+- `uv run ruff format .`: フォーマット
+- `uv run ruff check .`: リント
+- `uv run ty check`: 型チェック
+- `uv run pytest`: テスト実行
 
 ## Coding Style & Naming Conventions
-- インデントはスペース 4、行の長さは 88 文字。
-- Python は snake_case、モジュールは `movie_metadata/` 配下に分割。
-- 例: `csv_reader.py`, `metadata_fetcher.py`, `json_writer.py`。
+- Python 3.14 / Ruff 設定: 行長 88、インデント 4 スペース、ダブルクォート
+- PEP 8 ベースの命名（クラス `PascalCase`、関数/変数 `snake_case`）
+- `__init__.py` は `F401` を無視（未使用インポート許容）
 
 ## Testing Guidelines
-- 専用のテストフレームワークは未導入です。
-- 迅速な確認は `app/data/movies_test.csv` を使い、`uv run` のワンライナーを `app/README.md` の例に沿って実行します。
-- テスト追加時は `app/tests/` を新設し、ファイル名は `test_*.py` を推奨します。
+- フレームワーク: `pytest`（`pytest-mock`, `pytest-cov` あり）
+- テスト配置: `app/tests/`、命名: `test_*.py`
+- 重要ロジックは例外系と境界値もカバーすること
 
 ## Commit & Pull Request Guidelines
-- コミットメッセージは日本語で簡潔に（例: `サンプルコードの作成`）。
-- PR には変更概要、動作確認手順、影響範囲を記載してください。
-- 生成データや API 仕様に変更がある場合は、サンプル出力や更新理由を添えてください。
+- コミットは Conventional Commits 形式を使用（例: `feat: ... (US-001)`, `docs: ...`）
+- 変更理由と影響範囲が分かる説明を付ける
+- PR には概要、テスト結果、関連チケット番号を記載
 
 ## Security & Configuration Tips
-- API キーは `GEMINI_API_KEY` として `.env` に設定します（`.env.example` を参照）。
-- Google Search grounding は課金対象のため、テストは少数の件数で実施してください。
-
-## 学習フロー補助
-- ユーザーが「学習を開始します」と伝えた場合は `docs/llm_as_judge_plan.md` を読み込み、進捗管理セクションの「現在の進捗」を確認して次のStepから開始する。
+- `GEMINI_API_KEY` を環境変数に設定（`.env` 利用想定）
+- API クォータに注意し、少量データで動作確認すること
