@@ -80,12 +80,12 @@
 **説明：** 開発者として、各イテレーションのスコアとメタデータをJSON形式で保存する機能が必要である。これにより、改善プロセスを追跡・分析できる。
 
 **受け入れ基準：**
-- [ ] `RefinementResultWriter`クラスを`movie_metadata/refinement_writer.py`に作成
-- [ ] `write(result: MetadataRefinementResult, output_path: Path) -> None`メソッドを実装
-- [ ] 出力ファイル名は`{title}_refinement_{timestamp}.json`形式
-- [ ] JSON出力には各イテレーションのメタデータとスコアを含む
-- [ ] 最終的な成功/失敗ステータスを記録
-- [ ] 型チェックが通過すること
+- [x] `RefinementResultWriter`クラスを`movie_metadata/refinement_writer.py`に作成
+- [x] `write(result: MetadataRefinementResult, output_path: Path) -> None`メソッドを実装
+- [x] 出力ファイル名は`{title}_refinement_{timestamp}.json`形式
+- [x] JSON出力には各イテレーションのメタデータとスコアを含む
+- [x] 最終的な成功/失敗ステータスを記録
+- [x] 型チェックが通過すること
 
 ### US-007: メインスクリプトを作成
 
