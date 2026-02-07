@@ -1,7 +1,6 @@
 """main_refineモジュールのテスト"""
 
 import json
-
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -88,6 +87,74 @@ def test_main_refine_records_errors_and_writes_batch(
     assert "エラーが発生した映画: Movie B" in caplog.text
 
 
+def test_main_refine_continues_after_error(mocker, sample_movie_metadata):
+    """エラー後も処理が継続されることを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=Path("data/output"),
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [
+        MovieInput(title="Movie A", release_date="2024-01-01", country="Japan"),
+        MovieInput(title="Unknown", release_date="2024-01-02", country="Japan"),
+        MovieInput(title="Movie C", release_date="2024-01-03", country="Japan"),
+    ]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    def build_result(title: str) -> MetadataRefinementResult:
+        metadata = sample_movie_metadata.model_copy(update={"title": title})
+        evaluation = MetadataEvaluationResult(
+            iteration=1,
+            field_scores=[
+                MetadataFieldScore(field_name="title", score=4.0, reasoning="良好")
+            ],
+            overall_status="pass",
+            improvement_suggestions="改善の必要なし",
+        )
+        history = [
+            RefinementHistoryEntry(
+                iteration=1, metadata=metadata, evaluation=evaluation
+            )
+        ]
+        return MetadataRefinementResult(
+            final_metadata=metadata,
+            history=history,
+            success=True,
+            total_iterations=1,
+        )
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.side_effect = [
+        build_result("Movie A"),
+        RuntimeError("not found"),
+        build_result("Movie C"),
+    ]
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    main_refine.main()
+
+    assert mock_refiner.refine.call_count == 3
+    batch_result, _ = mock_writer.write_batch.call_args.args
+    assert batch_result.total_count == 3
+    assert batch_result.success_count == 2
+    assert batch_result.error_count == 1
+    assert batch_result.errors == [{"title": "Unknown", "message": "not found"}]
+    assert len(batch_result.results) == 2
+    titles = {result.final_metadata.title for result in batch_result.results}
+    assert titles == {"Movie A", "Movie C"}
+
+
 def test_main_refine_logs_progress_for_each_record(
     mocker, caplog, sample_refinement_result
 ):
@@ -125,7 +192,9 @@ def test_main_refine_logs_progress_for_each_record(
     assert "処理中: 2/2件完了（タイトル: Movie B）" in caplog.text
 
 
-def test_main_refine_uses_csv_filename_env(monkeypatch, mocker, sample_refinement_result):
+def test_main_refine_uses_csv_filename_env(
+    monkeypatch, mocker, sample_refinement_result
+):
     """CSV_FILENAME環境変数が読み込まれることを確認"""
     monkeypatch.setenv("GEMINI_API_KEY", "test")
     monkeypatch.setenv("CSV_FILENAME", "movies_test.csv")
