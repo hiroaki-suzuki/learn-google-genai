@@ -69,14 +69,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、メタデータ評価機能をテストするため、test_evaluator.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_evaluator.pyファイルを作成する
-- [ ] GenAIClientをモック化し、evaluate()メソッドの正常系テストを実装する
-- [ ] すべてのフィールドが3.5以上の場合のoverall_status="pass"テストを実装する
-- [ ] 1つ以上のフィールドが3.5未満の場合のoverall_status="fail"テストを実装する
-- [ ] API呼び出し失敗時の例外処理テストを実装する
-- [ ] `uv run pytest tests/test_evaluator.py -v`が成功する
-- [ ] evaluator.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_evaluator.pyファイルを作成する
+- [x] GenAIClientをモック化し、evaluate()メソッドの正常系テストを実装する
+- [x] すべてのフィールドが3.5以上の場合のoverall_status="pass"テストを実装する
+- [x] 1つ以上のフィールドが3.5未満の場合のoverall_status="fail"テストを実装する
+- [x] API呼び出し失敗時の例外処理テストを実装する
+- [x] `uv run pytest tests/test_evaluator.py -v`が成功する
+- [x] evaluator.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-006: improvement_proposer.pyの単体テスト作成（モック使用）
 
