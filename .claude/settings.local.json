@@ -1,15 +1,16 @@
 {
-    "$schema": "https://json.schemastore.org/claude-code-settings.json",
-    "permissions": {
-        "allow": [
-            "WebFetch(domain:docs.astral.sh)",
-            "WebSearch",
-            "WebFetch(domain:googleapis.github.io)",
-            "WebFetch(domain:ai.google.dev)",
-            "Bash(uv run ruff:*)",
-            "Bash(uv run ruff check:*)",
-            "Bash(uv run:*)",
-            "WebFetch(domain:arxiv.org)"
-        ]
-    }
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.astral.sh)",
+      "WebSearch",
+      "WebFetch(domain:googleapis.github.io)",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(uv run ruff:*)",
+      "Bash(uv run ruff check:*)",
+      "Bash(uv run:*)",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
 }
