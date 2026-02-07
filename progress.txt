@@ -1,0 +1,28 @@
+# 進捗記録
+
+## イテレーション 1 - US-001: CSV_FILENAMEの環境変数サポートを追加
+- 実装内容:
+  - `config.py`に`csv_filename`フィールドを追加（環境変数`CSV_FILENAME`から読み込み）
+  - `field_validator`を使用して、`CSV_FILENAME`が設定されている場合は`data/{CSV_FILENAME}`を使用し、未設定の場合はデフォルト値`data/movies_test3.csv`を使用するように実装
+  - `tests/test_config.py`を新規作成し、5つのテストケースを追加（100%カバレッジ）
+  - テストでは、環境変数の設定/未設定、パスの自動生成、フィールドの存在確認などをカバー
+
+- 変更したファイル:
+  - `app/config.py`: `csv_filename`フィールドと`field_validator`を追加
+  - `app/tests/test_config.py`: 新規作成
+  - `app/tests/test_genai_client.py`: Ruffのリント警告（SIM117）に対応してwith文を統合
+
+- 今後のイテレーションに向けた学習事項:
+  - Pydantic SettingsのFieldでは`validation_alias`を使用して環境変数名を指定できる
+  - `field_validator`の`mode="before"`を使用すると、バリデーション前の値にアクセスできる
+  - `info.data.get()`を使用して他のフィールドの値を参照できる
+  - テストでは`patch.dict("os.environ", {...}, clear=True)`を使用して環境変数を安全にモックできる
+  - `.env.example`ファイルの編集には権限が必要な場合があるため、代替手段を検討する必要がある
+
+---
+
+## 得られた知見
+
+（実装過程で発見されたパターンや知見）
+
+---

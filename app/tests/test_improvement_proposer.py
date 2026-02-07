@@ -29,7 +29,9 @@ def sample_evaluation_result_pass() -> MetadataEvaluationResult:
                 field_name="distributor", score=4.0, reasoning="配給会社が正確である"
             ),
             MetadataFieldScore(
-                field_name="box_office", score=3.8, reasoning="興行収入の記載が適切である"
+                field_name="box_office",
+                score=3.8,
+                reasoning="興行収入の記載が適切である",
             ),
         ],
         overall_status="pass",
@@ -44,13 +46,19 @@ def sample_evaluation_result_fail() -> MetadataEvaluationResult:
         iteration=2,
         field_scores=[
             MetadataFieldScore(
-                field_name="japanese_titles", score=3.0, reasoning="日本語タイトルが不足している"
+                field_name="japanese_titles",
+                score=3.0,
+                reasoning="日本語タイトルが不足している",
             ),
             MetadataFieldScore(
-                field_name="distributor", score=2.5, reasoning="配給会社の情報が不正確である"
+                field_name="distributor",
+                score=2.5,
+                reasoning="配給会社の情報が不正確である",
             ),
             MetadataFieldScore(
-                field_name="box_office", score=3.8, reasoning="興行収入の記載が適切である"
+                field_name="box_office",
+                score=3.8,
+                reasoning="興行収入の記載が適切である",
             ),
         ],
         overall_status="fail",
@@ -92,9 +100,7 @@ def test_propose_fail_status(
     proposer = ImprovementProposer(api_key="test_key")
 
     # GenAIClientをモック化
-    with patch(
-        "movie_metadata.improvement_proposer.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.improvement_proposer.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
 
@@ -126,9 +132,7 @@ def test_propose_api_client_error(
     """propose()でClientErrorが発生した場合のテスト"""
     proposer = ImprovementProposer(api_key="test_key")
 
-    with patch(
-        "movie_metadata.improvement_proposer.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.improvement_proposer.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = ClientError(
@@ -152,9 +156,7 @@ def test_propose_api_server_error(
     """propose()でServerErrorが発生した場合のテスト"""
     proposer = ImprovementProposer(api_key="test_key")
 
-    with patch(
-        "movie_metadata.improvement_proposer.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.improvement_proposer.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = ServerError(
@@ -178,9 +180,7 @@ def test_propose_api_error(
     """propose()でAPIErrorが発生した場合のテスト"""
     proposer = ImprovementProposer(api_key="test_key")
 
-    with patch(
-        "movie_metadata.improvement_proposer.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.improvement_proposer.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = APIError(
@@ -204,9 +204,7 @@ def test_propose_unexpected_error(
     """propose()で予期しないエラーが発生した場合のテスト"""
     proposer = ImprovementProposer(api_key="test_key")
 
-    with patch(
-        "movie_metadata.improvement_proposer.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.improvement_proposer.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = RuntimeError(

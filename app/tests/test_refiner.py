@@ -1,6 +1,6 @@
 """refinement_loopモジュールのテスト"""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from google.genai.errors import APIError, ClientError, ServerError
@@ -67,10 +67,8 @@ def failing_evaluation() -> MetadataEvaluationResult:
 def test_refiner_initialization(mocker):
     """MetadataRefinerの初期化テスト"""
     # GenAIClientのモックをパッチ
-    mock_client = MagicMock()
-    mocker.patch(
-        "movie_metadata.refiner.MetadataEvaluator.__init__", return_value=None
-    )
+    MagicMock()
+    mocker.patch("movie_metadata.refiner.MetadataEvaluator.__init__", return_value=None)
     mocker.patch(
         "movie_metadata.refiner.ImprovementProposer.__init__", return_value=None
     )
@@ -237,7 +235,9 @@ def test_refine_failure_max_iterations(
     failing_evaluation_iter2 = MetadataEvaluationResult(
         iteration=2,
         field_scores=[
-            MetadataFieldScore(field_name="cast", score=2.8, reasoning="まだ改善が必要"),
+            MetadataFieldScore(
+                field_name="cast", score=2.8, reasoning="まだ改善が必要"
+            ),
         ],
         overall_status="fail",
         improvement_suggestions="さらにキャスト情報を補完してください",
@@ -307,9 +307,7 @@ def test_refine_api_error_client_error(mocker, sample_movie_input):
 
     # MetadataEvaluatorとImprovementProposerをモック化
     mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
-    mocker.patch(
-        "movie_metadata.refiner.ImprovementProposer", return_value=MagicMock()
-    )
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
 
     # time.sleepをモック化してテストを高速化
     mocker.patch("movie_metadata.refiner.time.sleep")
@@ -341,9 +339,7 @@ def test_refine_api_error_server_error(mocker, sample_movie_input):
 
     # MetadataEvaluatorとImprovementProposerをモック化
     mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
-    mocker.patch(
-        "movie_metadata.refiner.ImprovementProposer", return_value=MagicMock()
-    )
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
 
     # time.sleepをモック化してテストを高速化
     mocker.patch("movie_metadata.refiner.time.sleep")
@@ -375,9 +371,7 @@ def test_refine_api_error_generic_api_error(mocker, sample_movie_input):
 
     # MetadataEvaluatorとImprovementProposerをモック化
     mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
-    mocker.patch(
-        "movie_metadata.refiner.ImprovementProposer", return_value=MagicMock()
-    )
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
 
     # time.sleepをモック化してテストを高速化
     mocker.patch("movie_metadata.refiner.time.sleep")
@@ -391,9 +385,7 @@ def test_refine_api_error_generic_api_error(mocker, sample_movie_input):
     assert "Rate limit exceeded" in str(exc_info.value)
 
 
-def test_refine_evaluator_api_error(
-    mocker, sample_movie_input, sample_movie_metadata
-):
+def test_refine_evaluator_api_error(mocker, sample_movie_input, sample_movie_metadata):
     """Evaluatorでエラーが発生した場合のテスト"""
     # GenAIClientのコンテキストマネージャーをモック化
     mock_client = MagicMock()
@@ -417,9 +409,7 @@ def test_refine_evaluator_api_error(
     )
 
     # ImprovementProposerをモック化
-    mocker.patch(
-        "movie_metadata.refiner.ImprovementProposer", return_value=MagicMock()
-    )
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
 
     # time.sleepをモック化してテストを高速化
     mocker.patch("movie_metadata.refiner.time.sleep")

@@ -275,13 +275,17 @@ class TestGenAIClientLogging:
     def test_init_logs_model_info(self, caplog: pytest.LogCaptureFixture) -> None:
         """初期化時にモデル名をログ出力するテスト"""
         # Arrange
-        with caplog.at_level(logging.INFO):
-            with patch("movie_metadata.genai_client.genai.Client"):
-                # Act
-                GenAIClient(api_key="test-key", model_name="custom-model")
+        with (
+            caplog.at_level(logging.INFO),
+            patch("movie_metadata.genai_client.genai.Client"),
+        ):
+            # Act
+            GenAIClient(api_key="test-key", model_name="custom-model")
 
         # Assert
-        assert "GenAIクライアントを初期化しました（モデル: custom-model）" in caplog.text
+        assert (
+            "GenAIクライアントを初期化しました（モデル: custom-model）" in caplog.text
+        )
 
     def test_enter_logs_context_entry(
         self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture
@@ -338,9 +342,7 @@ class TestGenAIClientLogging:
             mock_genai_client.close()
 
         # Assert
-        assert (
-            "GenAIクライアントを終了し、リソースを解放しています" in caplog.text
-        )
+        assert "GenAIクライアントを終了し、リソースを解放しています" in caplog.text
 
     def test_close_logs_error_on_failure(
         self, mock_genai_client: GenAIClient, caplog: pytest.LogCaptureFixture

@@ -1,7 +1,5 @@
 """prompts.pyのテスト"""
 
-import pytest
-
 from movie_metadata.models import (
     MetadataEvaluationResult,
     MetadataFieldScore,
@@ -121,7 +119,9 @@ class TestBuildImprovementProposalPrompt:
 
     def test_build_prompt_with_fail_status(self):
         """overall_status='fail'の評価結果でプロンプトが構築されることを確認"""
-        movie_input = MovieInput(title="Test Movie", release_date="2024-01-01", country="Japan")
+        movie_input = MovieInput(
+            title="Test Movie", release_date="2024-01-01", country="Japan"
+        )
         current_metadata = MovieMetadata(
             title="Test Movie",
             japanese_titles=["テスト映画"],
@@ -175,7 +175,9 @@ class TestBuildImprovementProposalPrompt:
 
     def test_build_prompt_with_pass_status(self):
         """overall_status='pass'の評価結果でプロンプトが構築されることを確認"""
-        movie_input = MovieInput(title="Pass Movie", release_date="2024-01-01", country="Japan")
+        movie_input = MovieInput(
+            title="Pass Movie", release_date="2024-01-01", country="Japan"
+        )
         current_metadata = MovieMetadata(
             title="Pass Movie",
             japanese_titles=["パス映画"],
@@ -221,7 +223,9 @@ class TestBuildImprovementProposalPrompt:
 
     def test_build_prompt_with_empty_metadata(self):
         """空のメタデータでプロンプトが構築されることを確認"""
-        movie_input = MovieInput(title="Empty Movie", release_date="2024-01-01", country="Japan")
+        movie_input = MovieInput(
+            title="Empty Movie", release_date="2024-01-01", country="Japan"
+        )
         current_metadata = MovieMetadata(
             title="Empty Movie",
             japanese_titles=[],

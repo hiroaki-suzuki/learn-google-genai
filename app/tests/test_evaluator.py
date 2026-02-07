@@ -27,11 +27,17 @@ def sample_evaluation_output_pass() -> MetadataEvaluationOutput:
                 field_name="distributor", score=4.0, reasoning="配給会社が正確である"
             ),
             MetadataFieldScore(
-                field_name="box_office", score=3.8, reasoning="興行収入の記載が適切である"
+                field_name="box_office",
+                score=3.8,
+                reasoning="興行収入の記載が適切である",
             ),
-            MetadataFieldScore(field_name="cast", score=4.2, reasoning="主要キャストが網羅されている"),
             MetadataFieldScore(
-                field_name="music", score=3.9, reasoning="音楽担当者が正確に記載されている"
+                field_name="cast", score=4.2, reasoning="主要キャストが網羅されている"
+            ),
+            MetadataFieldScore(
+                field_name="music",
+                score=3.9,
+                reasoning="音楽担当者が正確に記載されている",
             ),
         ],
         improvement_suggestions="改善の必要なし",
@@ -44,17 +50,27 @@ def sample_evaluation_output_fail() -> MetadataEvaluationOutput:
     return MetadataEvaluationOutput(
         field_scores=[
             MetadataFieldScore(
-                field_name="japanese_titles", score=3.0, reasoning="日本語タイトルが不足している"
+                field_name="japanese_titles",
+                score=3.0,
+                reasoning="日本語タイトルが不足している",
             ),
             MetadataFieldScore(
-                field_name="distributor", score=2.5, reasoning="配給会社の情報が不正確である"
+                field_name="distributor",
+                score=2.5,
+                reasoning="配給会社の情報が不正確である",
             ),
             MetadataFieldScore(
-                field_name="box_office", score=3.8, reasoning="興行収入の記載が適切である"
+                field_name="box_office",
+                score=3.8,
+                reasoning="興行収入の記載が適切である",
             ),
-            MetadataFieldScore(field_name="cast", score=4.0, reasoning="主要キャストが網羅されている"),
             MetadataFieldScore(
-                field_name="music", score=3.5, reasoning="音楽担当者が正確に記載されている"
+                field_name="cast", score=4.0, reasoning="主要キャストが網羅されている"
+            ),
+            MetadataFieldScore(
+                field_name="music",
+                score=3.5,
+                reasoning="音楽担当者が正確に記載されている",
             ),
         ],
         improvement_suggestions="日本語タイトルに別名表記を追加してください。配給会社の正式名称を確認してください。",
@@ -76,9 +92,7 @@ def test_evaluate_success_pass(
     evaluator = MetadataEvaluator(api_key="test_key")
 
     # GenAIClientをモック化
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
 
@@ -106,9 +120,7 @@ def test_evaluate_success_fail(
     evaluator = MetadataEvaluator(api_key="test_key")
 
     # GenAIClientをモック化
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
 
@@ -135,9 +147,7 @@ def test_evaluate_with_default_iteration(
     """evaluate()のデフォルトiteration値テスト"""
     evaluator = MetadataEvaluator(api_key="test_key")
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.return_value = (
@@ -155,9 +165,7 @@ def test_evaluate_api_client_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でClientErrorが発生した場合のテスト"""
     evaluator = MetadataEvaluator(api_key="test_key")
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = ClientError(
@@ -173,9 +181,7 @@ def test_evaluate_api_server_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でServerErrorが発生した場合のテスト"""
     evaluator = MetadataEvaluator(api_key="test_key")
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = ServerError(
@@ -191,9 +197,7 @@ def test_evaluate_api_error(sample_movie_metadata: MovieMetadata):
     """evaluate()でAPIErrorが発生した場合のテスト"""
     evaluator = MetadataEvaluator(api_key="test_key")
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = APIError(
@@ -209,9 +213,7 @@ def test_evaluate_unexpected_error(sample_movie_metadata: MovieMetadata):
     """evaluate()で予期しないエラーが発生した場合のテスト"""
     evaluator = MetadataEvaluator(api_key="test_key")
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.side_effect = RuntimeError(
@@ -229,16 +231,16 @@ def test_evaluate_boundary_score_all_exactly_3_5(sample_movie_metadata: MovieMet
 
     boundary_output = MetadataEvaluationOutput(
         field_scores=[
-            MetadataFieldScore(field_name="japanese_titles", score=3.5, reasoning="普通"),
+            MetadataFieldScore(
+                field_name="japanese_titles", score=3.5, reasoning="普通"
+            ),
             MetadataFieldScore(field_name="distributor", score=3.5, reasoning="普通"),
             MetadataFieldScore(field_name="box_office", score=3.5, reasoning="普通"),
         ],
         improvement_suggestions="改善の必要なし",
     )
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.return_value = (
@@ -266,9 +268,7 @@ def test_evaluate_boundary_score_one_below_3_5(sample_movie_metadata: MovieMetad
         improvement_suggestions="japanese_titlesを改善してください",
     )
 
-    with patch(
-        "movie_metadata.evaluator.GenAIClient"
-    ) as mock_client_class:
+    with patch("movie_metadata.evaluator.GenAIClient") as mock_client_class:
         mock_client_instance = MagicMock()
         mock_client_class.return_value.__enter__.return_value = mock_client_instance
         mock_client_instance.generate_content.return_value = (
