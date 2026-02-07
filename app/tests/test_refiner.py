@@ -425,3 +425,89 @@ def test_refine_evaluator_api_error(mocker, sample_movie_input, sample_movie_met
         refiner.refine(sample_movie_input, max_iterations=3, threshold=3.5)
 
     assert "Service unavailable" in str(exc_info.value)
+
+
+def test_refine_threshold_validation_non_numeric(mocker, sample_movie_input):
+    """thresholdが数値でない場合、ValueErrorを発生させるテスト"""
+    # MetadataRefinerの初期化に必要なモックを設定
+    mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
+
+    refiner = MetadataRefiner(api_key="test_api_key", rate_limit_sleep=0.0)
+
+    with pytest.raises(ValueError) as exc_info:
+        refiner.refine(sample_movie_input, threshold="invalid")  # type: ignore[arg-type]
+
+    assert "数値である必要があります" in str(exc_info.value)
+
+
+def test_refine_threshold_validation_out_of_range_low(mocker, sample_movie_input):
+    """thresholdが0.0未満の場合、ValueErrorを発生させるテスト"""
+    # MetadataRefinerの初期化に必要なモックを設定
+    mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
+
+    refiner = MetadataRefiner(api_key="test_api_key", rate_limit_sleep=0.0)
+
+    with pytest.raises(ValueError) as exc_info:
+        refiner.refine(sample_movie_input, threshold=-0.1)
+
+    assert "0.0～5.0の範囲内である必要があります" in str(exc_info.value)
+
+
+def test_refine_threshold_validation_out_of_range_high(mocker, sample_movie_input):
+    """thresholdが5.0超の場合、ValueErrorを発生させるテスト"""
+    # MetadataRefinerの初期化に必要なモックを設定
+    mocker.patch("movie_metadata.refiner.MetadataEvaluator", return_value=MagicMock())
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
+
+    refiner = MetadataRefiner(api_key="test_api_key", rate_limit_sleep=0.0)
+
+    with pytest.raises(ValueError) as exc_info:
+        refiner.refine(sample_movie_input, threshold=5.1)
+
+    assert "0.0～5.0の範囲内である必要があります" in str(exc_info.value)
+
+
+def test_refine_uses_default_threshold_when_none(
+    mocker, sample_movie_input, sample_movie_metadata, passing_evaluation
+):
+    """thresholdがNoneの場合、環境変数のデフォルト値を使用するテスト"""
+    # AppConfigをモック化して、quality_score_thresholdを0.5に設定
+    mock_config = MagicMock()
+    mock_config.quality_score_threshold = 0.5
+    mocker.patch("movie_metadata.refiner.AppConfig", return_value=mock_config)
+
+    # GenAIClientのコンテキストマネージャーをモック化
+    mock_client = MagicMock()
+    mock_genai_client_class = mocker.patch("movie_metadata.refiner.GenAIClient")
+    mock_genai_client_class.return_value.__enter__.return_value = mock_client
+    mock_genai_client_class.return_value.__exit__.return_value = None
+
+    # MovieMetadataFetcherをモック化
+    mock_fetcher_class = mocker.patch("movie_metadata.refiner.MovieMetadataFetcher")
+    mock_fetcher = MagicMock()
+    mock_fetcher.fetch.return_value = sample_movie_metadata
+    mock_fetcher_class.return_value = mock_fetcher
+
+    # MetadataEvaluatorをモック化
+    mock_evaluator = MagicMock()
+    mock_evaluator.evaluate.return_value = passing_evaluation
+    mocker.patch(
+        "movie_metadata.refiner.MetadataEvaluator", return_value=mock_evaluator
+    )
+
+    # ImprovementProposerをモック化
+    mocker.patch("movie_metadata.refiner.ImprovementProposer", return_value=MagicMock())
+
+    # time.sleepをモック化
+    mocker.patch("movie_metadata.refiner.time.sleep")
+
+    # テスト実行（thresholdを明示的にNoneに設定）
+    refiner = MetadataRefiner(api_key="test_api_key", rate_limit_sleep=0.0)
+    result = refiner.refine(sample_movie_input, max_iterations=3, threshold=None)
+
+    # 検証: デフォルト閾値（環境変数から読み込まれた値）が使用されることを確認
+    assert result.success is True
+    # AppConfigから読み込まれた閾値が使用される
+    assert refiner.default_threshold == 0.5

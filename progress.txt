@@ -106,10 +106,60 @@
       if not Path(env_file).exists():
           raise FileNotFoundError(f"環境変数ファイル '{env_file}' が見つかりません。")
       return env_file
-  
+
   class AppConfig(BaseSettings):
       model_config = SettingsConfigDict(env_file=get_env_file())
   ```
 - US-002とUS-003は密接に関連しており、AppConfigにquality_score_thresholdフィールドを追加する必要があった
+
+---
+
+## イテレーション 4 - US-003: ハードコードされた閾値の置き換え（完了）
+
+### 実施内容
+- MetadataRefinerクラスで環境変数から品質スコア閾値を取得するよう変更
+- __init__メソッドでAppConfigを読み込み、default_thresholdインスタンス変数に保存
+- refine()メソッドのthresholdパラメータのデフォルト値をNoneに変更し、未指定時にdefault_thresholdを使用
+- バリデーション処理を追加：
+  - thresholdが数値でない場合にValueErrorを発生
+  - thresholdが0.0～5.0の範囲外の場合にValueErrorを発生
+- test_config.pyの既存テストを修正し、_env_fileパラメータを使用して一時的な環境ファイルを読み込むよう変更
+- test_refiner.pyに4つの新しいテストを追加：
+  - test_refine_threshold_validation_non_numeric
+  - test_refine_threshold_validation_out_of_range_low
+  - test_refine_threshold_validation_out_of_range_high
+  - test_refine_uses_default_threshold_when_none
+- 変更したファイル：
+  - /workspaces/learn-google-genai/app/movie_metadata/refiner.py
+  - /workspaces/learn-google-genai/app/tests/test_config.py
+  - /workspaces/learn-google-genai/app/tests/test_refiner.py
+  - /workspaces/learn-google-genai/PRD.md
+
+### 品質チェック結果
+- フォーマット：合格
+- Lint：合格
+- 型チェック：合格
+- すべてのテスト：151件合格（100%）
+
+### 解決した問題
+- 行の長さエラーを修正（ドキュメント文字列の改行、長い文字列の分割）
+- テストでENV=testが設定されているため、AppConfigが.env.testを読み込んでしまう問題を、tmp_pathとAppConfig(_env_file=...)で解決
+- AppConfigのモック化により、テストで特定の閾値をシミュレート可能に
+
+### 今後のイテレーションに向けた学習事項
+- Pythonのメソッド定義のデフォルト引数にインスタンス変数を使用できないため、Noneをデフォルトにしてメソッド内で設定するパターンを使用
+- バリデーション処理のパターン：
+  ```python
+  if not isinstance(threshold, (int, float)):
+      msg = f"thresholdは数値である必要があります（受け取った型: {type(threshold).__name__}）"
+      raise ValueError(msg)
+
+  if not (0.0 <= threshold <= 5.0):
+      msg = f"thresholdは0.0～5.0の範囲内である必要があります（受け取った値: {threshold}）"
+      raise ValueError(msg)
+  ```
+- テストでpatch.dict(clear=True)を使用すると、ENV環境変数もクリアされるため、get_env_file()がデフォルトの.envを選択しようとする
+- テストで_env_fileパラメータを使用して一時ファイルを指定することで、環境変数ファイルの読み込みを制御可能
+- AppConfigをモック化することで、テスト時に特定の設定値を注入できる
 
 ---

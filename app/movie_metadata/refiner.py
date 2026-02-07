@@ -6,6 +6,7 @@
 import logging
 import time
 
+from config import AppConfig
 from movie_metadata.evaluator import MetadataEvaluator
 from movie_metadata.genai_client import GenAIClient
 from movie_metadata.improvement_proposer import ImprovementProposer
@@ -46,20 +47,25 @@ class MetadataRefiner:
         self.model_name = model_name
         self.rate_limit_sleep = rate_limit_sleep
 
+        # 環境変数から品質スコア閾値を取得
+        config = AppConfig()
+        self.default_threshold = config.quality_score_threshold
+
         # 評価器と改善提案器を初期化
         self.evaluator = MetadataEvaluator(api_key=api_key, model_name=model_name)
         self.proposer = ImprovementProposer(api_key=api_key, model_name=model_name)
 
         logger.info(
             f"MetadataRefinerを初期化しました（モデル: {model_name}, "
-            f"レート制限スリープ: {rate_limit_sleep}秒）"
+            f"レート制限スリープ: {rate_limit_sleep}秒, "
+            f"デフォルト閾値: {self.default_threshold}）"
         )
 
     def refine(
         self,
         movie_input: MovieInput,
         max_iterations: int = 3,
-        threshold: float = 3.5,
+        threshold: float | None = None,
     ) -> MetadataRefinementResult:
         """メタデータを改善する
 
@@ -69,14 +75,33 @@ class MetadataRefiner:
         Args:
             movie_input: 映画の基本情報
             max_iterations: 最大イテレーション数（デフォルト: 3）
-            threshold: 各フィールドの合格閾値（デフォルト: 3.5）
+            threshold: 各フィールドの合格閾値
+                （デフォルト: 環境変数QUALITY_SCORE_THRESHOLD）
 
         Returns:
             MetadataRefinementResult: 改善プロセスの結果
 
         Raises:
             Exception: メタデータ取得、評価、改善提案のいずれかに失敗した場合
+            ValueError: thresholdが0.0～5.0の範囲外の場合
         """
+        # thresholdが未指定の場合、環境変数から読み込んだデフォルト値を使用
+        if threshold is None:
+            threshold = self.default_threshold
+
+        # バリデーション: thresholdは0.0～5.0の範囲内である必要がある
+        if not isinstance(threshold, (int, float)):
+            type_name = type(threshold).__name__
+            msg = f"thresholdは数値である必要があります（受け取った型: {type_name}）"
+            raise ValueError(msg)
+
+        if not (0.0 <= threshold <= 5.0):
+            msg = (
+                f"thresholdは0.0～5.0の範囲内である必要があります"
+                f"（受け取った値: {threshold}）"
+            )
+            raise ValueError(msg)
+
         logger.info(
             f"メタデータ改善ループを開始します（最大イテレーション: {max_iterations}, "
             f"閾値: {threshold}, タイトル: {movie_input.title}）"

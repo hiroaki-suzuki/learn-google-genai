@@ -11,51 +11,69 @@ from config import AppConfig, get_env_file
 class TestAppConfigCSVPath:
     """AppConfig.csv_pathのテストクラス"""
 
-    def test_csv_path_default_when_csv_filename_not_set(self) -> None:
+    def test_csv_path_default_when_csv_filename_not_set(self, tmp_path: Path) -> None:
         """CSV_FILENAMEが設定されていない場合、デフォルト値を使用するテスト"""
-        # Arrange & Act
+        # Arrange - CSV_FILENAMEを含まない一時的な.envファイルを作成
+        test_env_file = tmp_path / ".env.test_default"
+        test_env_file.write_text("GEMINI_API_KEY=test-key\n")
+
+        # Act - _env_fileパラメータで明示的に環境ファイルを指定
         with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}, clear=True):
-            config = AppConfig()
+            config = AppConfig(_env_file=str(test_env_file))  # type: ignore[call-arg]
 
         # Assert
         assert config.csv_path == Path("data/movies_test3.csv")
 
-    def test_csv_path_uses_csv_filename_when_set(self) -> None:
+    def test_csv_path_uses_csv_filename_when_set(self, tmp_path: Path) -> None:
         """CSV_FILENAMEが設定されている場合、それを使用するテスト"""
-        # Arrange & Act
+        # Arrange - CSV_FILENAMEを含む一時的な.envファイルを作成
+        test_env_file = tmp_path / ".env.test_csv"
+        test_env_file.write_text("GEMINI_API_KEY=test-key\nCSV_FILENAME=movies.csv\n")
+
+        # Act - _env_fileパラメータで明示的に環境ファイルを指定
         with patch.dict(
             "os.environ",
             {"GEMINI_API_KEY": "test-key", "CSV_FILENAME": "movies.csv"},
             clear=True,
         ):
-            config = AppConfig()
+            config = AppConfig(_env_file=str(test_env_file))  # type: ignore[call-arg]
 
         # Assert
         assert config.csv_path == Path("data/movies.csv")
 
-    def test_csv_path_prepends_data_directory(self) -> None:
+    def test_csv_path_prepends_data_directory(self, tmp_path: Path) -> None:
         """CSV_FILENAMEにdataディレクトリが自動的に追加されるテスト"""
-        # Arrange & Act
+        # Arrange - CSV_FILENAMEを含む一時的な.envファイルを作成
+        test_env_file = tmp_path / ".env.test_prepend"
+        test_env_file.write_text(
+            "GEMINI_API_KEY=test-key\nCSV_FILENAME=custom_movies.csv\n"
+        )
+
+        # Act - _env_fileパラメータで明示的に環境ファイルを指定
         with patch.dict(
             "os.environ",
             {"GEMINI_API_KEY": "test-key", "CSV_FILENAME": "custom_movies.csv"},
             clear=True,
         ):
-            config = AppConfig()
+            config = AppConfig(_env_file=str(test_env_file))  # type: ignore[call-arg]
 
         # Assert
         assert config.csv_path == Path("data/custom_movies.csv")
         assert str(config.csv_path).startswith("data/")
 
-    def test_csv_filename_field_exists(self) -> None:
+    def test_csv_filename_field_exists(self, tmp_path: Path) -> None:
         """csv_filenameフィールドが存在することを確認するテスト"""
-        # Arrange & Act
+        # Arrange - CSV_FILENAMEを含む一時的な.envファイルを作成
+        test_env_file = tmp_path / ".env.test_field"
+        test_env_file.write_text("GEMINI_API_KEY=test-key\nCSV_FILENAME=test.csv\n")
+
+        # Act - _env_fileパラメータで明示的に環境ファイルを指定
         with patch.dict(
             "os.environ",
             {"GEMINI_API_KEY": "test-key", "CSV_FILENAME": "test.csv"},
             clear=True,
         ):
-            config = AppConfig()
+            config = AppConfig(_env_file=str(test_env_file))  # type: ignore[call-arg]
 
         # Assert
         assert hasattr(config, "csv_filename")
