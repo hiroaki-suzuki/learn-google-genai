@@ -1,0 +1,21 @@
+---
+name: git-workflow
+description: Gitに関する運用ルール
+---
+
+# Git運用ルール
+
+## コミットメッセージ
+- 形式: `<type>: <説明>`（小文字）
+- type: feat, fix, refactor, docs, test, chore, ci
+- 説明: 命令形、最大72文字（例: `feat: ユーザー認証を追加`）
+- 本文（任意）: 「なぜしたか」を説明
+
+## ブランチ戦略
+- `main` - 本番リリース可能なコード
+- `feat/<名前>` - 新機能
+- `fix/<名前>` - バグ修正
+
+## ルール
+- `main` への force-push は禁止
+- 1つの論理的な変更につき1コミット
