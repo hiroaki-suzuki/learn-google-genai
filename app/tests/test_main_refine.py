@@ -83,3 +83,27 @@ def test_main_refine_records_errors_and_writes_batch(
 
     assert "エラー件数: 1" in caplog.text
     assert "エラーが発生した映画: Movie B" in caplog.text
+
+
+def test_main_refine_uses_csv_filename_env(monkeypatch, mocker, sample_refinement_result):
+    """CSV_FILENAME環境変数が読み込まれることを確認"""
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.setenv("CSV_FILENAME", "movies_test.csv")
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [MovieInput(title="Movie A", release_date="2024-01-01", country="Japan")]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.return_value = sample_refinement_result
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    main_refine.main()
+
+    expected_csv_path = Path(main_refine.__file__).parent / Path("data/movies_test.csv")
+    assert mock_csv_reader.read.call_args.args[0] == expected_csv_path

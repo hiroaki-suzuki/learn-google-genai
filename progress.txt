@@ -83,3 +83,14 @@
 - バッチ処理の統計は`BatchRefinementResult`にまとめて管理するとテストが簡潔になる
 - 例外系のテストは`refine`の`side_effect`で成功/失敗を混在させると実践的
 ---
+## イテレーション 7 - US-006: CSV_FILENAMEの読み込み確認
+- 実装内容
+- `main_refine`の統合テストを追加し、`CSV_FILENAME`環境変数がCSV読み込みパスに反映されることを確認した
+- テストで`GEMINI_API_KEY`も環境変数として設定し、`AppConfig`の必須値を満たすようにした
+- 変更したファイル
+- `app/tests/test_main_refine.py`
+- `PRD.md`
+- 今後のイテレーションに向けた学習事項：
+- `AppConfig`をそのまま使う統合テストでは`GEMINI_API_KEY`を必ず設定する
+- `CSVReader.read`の呼び出し引数を検証すると、環境変数の反映確認が簡潔になる
+---
