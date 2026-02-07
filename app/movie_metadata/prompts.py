@@ -82,7 +82,8 @@ METADATA_EVALUATION_PROMPT_TEMPLATE = """
 ### フィールド別の評価ポイント
 
 - **japanese_titles**: 正式名称、略称、別名など複数の呼び方が含まれているか
-- **original_work**: 原作がある場合は作品名が明記されているか、オリジナルなら「オリジナル」と記載されているか
+- **original_work**: 原作がある場合は作品名が明記されているか、
+  オリジナルなら「オリジナル」と記載されているか
 - **original_authors**: 原作者が正確に記載されているか（オリジナルの場合は空でも可）
 - **distributor**: 日本での配給会社が明記されているか
 - **production_companies**: 主要な制作会社が適切にリストされているか
