@@ -30,6 +30,9 @@ def get_env_file() -> str:
             f"ENV={env} に対応するファイルを作成してください。"
         )
 
+    # 環境変数ファイルが読み込まれたことをログ出力
+    print(f"[CONFIG] ENV={env} - 環境変数ファイル '{env_file}' を読み込みました")
+
     return env_file
 
 

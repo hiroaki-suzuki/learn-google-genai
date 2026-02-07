@@ -163,3 +163,44 @@
 - AppConfigをモック化することで、テスト時に特定の設定値を注入できる
 
 ---
+
+## イテレーション 5 - US-004: 単体テストの環境変数設定（完了）
+
+### 実施内容
+- pytest.iniファイルを新規作成し、ENV=testを自動設定
+- pytest-envプラグインをdev依存関係に追加（uv add --dev pytest-env）
+- config.pyのget_env_file()関数にログ出力を追加
+- CLAUDE.mdを更新し、テスト実行コマンドと環境変数の説明を追加
+- すべてのテストが.env.testの閾値（0.5）で正常に動作することを確認
+- 変更したファイル：
+  - /workspaces/learn-google-genai/app/pytest.ini（新規作成）
+  - /workspaces/learn-google-genai/app/config.py
+  - /workspaces/learn-google-genai/CLAUDE.md
+  - /workspaces/learn-google-genai/app/pyproject.toml（pytest-env追加）
+  - /workspaces/learn-google-genai/PRD.md
+
+### 品質チェック結果
+- フォーマット：合格
+- Lint：合格
+- 型チェック：合格
+- すべてのテスト：151件合格（100%）
+- コンソール出力で「[CONFIG] ENV=test - 環境変数ファイル '.env.test' を読み込みました」が確認できた
+
+### 今後のイテレーションに向けた学習事項
+- pytestで環境変数を設定するには、pytest-envプラグインが必要
+- pytest.iniの[pytest]セクションで`env = ENV=test`と設定することで、すべてのテスト実行時に自動的にENV=testが設定される
+- pytest設定パターン：
+  ```ini
+  [pytest]
+  env =
+      ENV=test
+  python_files = test_*.py
+  addopts = -v --tb=short --strict-markers
+  ```
+- ログ出力にprint()を使用することで、pytest -sオプションで標準出力を確認可能
+- CLAUDE.mdは開発者向けドキュメントとして、セットアップ手順やコマンド例を記載する重要なファイル
+- 環境変数ファイルの切り替えは、ENV環境変数で制御される：
+  - ENV=test → .env.test（テスト環境）
+  - ENV=production または未設定 → .env（本番環境）
+
+---

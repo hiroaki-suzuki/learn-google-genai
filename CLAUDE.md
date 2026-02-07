@@ -26,6 +26,18 @@ cd app
 uv run main.py
 ```
 
+### テスト実行
+
+```bash
+cd app
+uv run pytest                                            # 全テスト実行
+uv run pytest -v                                         # 詳細出力
+uv run pytest --cov                                      # カバレッジ付き実行
+uv run pytest tests/test_config.py                       # 特定のテストファイル
+```
+
+**注意**: `pytest.ini`により、テスト実行時は自動的に`ENV=test`が設定され、`.env.test`ファイルが読み込まれます。
+
 ### コード品質チェック
 
 ```bash
@@ -65,7 +77,25 @@ learn-google-genai/
 
 ## 環境変数
 
+### 環境変数ファイルの種類
+
+- **`.env`**: 本番環境用の設定（`ENV=production`または未設定時に使用）
+- **`.env.test`**: テスト環境用の設定（`ENV=test`時に使用）
+- **`.env.example`**: 環境変数の設定例とドキュメント
+
 `.env.example` をコピーして `.env` を作成。uvが自動的に読み込みます。
+
+### 環境切り替え
+
+`ENV`環境変数で使用する環境変数ファイルを切り替えられます:
+
+```bash
+# 本番環境（デフォルト）
+uv run main.py
+
+# テスト環境（pytestが自動設定）
+ENV=test uv run main.py
+```
 
 ## 注意事項
 
