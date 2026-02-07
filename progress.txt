@@ -19,6 +19,26 @@
 
 ---
 
+## イテレーション 2 - models.pyのバリデーションテスト作成
+- 実装内容
+  - tests/test_models.pyを作成
+  - 7つのPydanticモデル（MovieInput, MovieMetadata, MetadataFieldScore, MetadataEvaluationResult, RefinementHistoryEntry, MetadataRefinementResult, MetadataEvaluationOutput）の正常系テストを実装
+  - MetadataFieldScoreのスコア範囲バリデーション（0.0〜5.0）の異常系テスト（境界値、範囲外）を実装
+  - 必須フィールド欠落時のValidationErrorテストを実装
+  - 合計17のテストケースを作成し、すべて成功
+- 変更したファイル
+  - app/tests/test_models.py: 新規作成（17テストケース）
+  - PRD.md: US-002を完了済みとしてマーク
+  - progress.txt: models.pyのカバレッジ100%を記録
+- 今後のイテレーションに向けた学習事項：
+  - conftest.pyのsample_movie_metadataフィクスチャを活用してテストコードを簡潔に記述できた
+  - Pydanticのge/leバリデーションは境界値（0.0, 5.0）を含むため、境界値テストと範囲外テスト（-0.1, 5.1）の両方を実装
+  - ValidationErrorをpytest.raisesでキャッチして異常系をテスト
+  - すべてのモデルで必須フィールドと型の整合性を確認
+  - models.pyは100%カバレッジを達成（36 statements, 0 missing）
+
+---
+
 ## カバレッジ記録
 
 ### ベースライン（US-001完了時）
@@ -37,7 +57,7 @@
   - models.py: 100%
 
 ### US-002完了時（models.py）
-- models.py: -%
+- models.py: 100%
 
 ### US-003完了時（prompts.py）
 - prompts.py: -%

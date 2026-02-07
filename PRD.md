@@ -29,12 +29,12 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、Pydanticモデルのバリデーション機能が正しく動作することを確認するため、test_models.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_models.pyファイルを作成する
-- [ ] MovieInput, MovieMetadata, MetadataFieldScore, MetadataEvaluationResult, RefinementHistoryEntry, MetadataRefinementResultの正常系テストを実装する
-- [ ] フィールドのバリデーション（score範囲0.0-5.0など）の異常系テストを実装する
-- [ ] `uv run pytest tests/test_models.py -v`が成功する
-- [ ] models.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_models.pyファイルを作成する
+- [x] MovieInput, MovieMetadata, MetadataFieldScore, MetadataEvaluationResult, RefinementHistoryEntry, MetadataRefinementResultの正常系テストを実装する
+- [x] フィールドのバリデーション（score範囲0.0-5.0など）の異常系テストを実装する
+- [x] `uv run pytest tests/test_models.py -v`が成功する
+- [x] models.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-003: prompts.pyの単体テスト作成
 
