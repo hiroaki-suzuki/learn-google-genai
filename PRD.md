@@ -41,14 +41,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、プロンプト生成関数が正しく動作することを確認するため、test_prompts.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_prompts.pyファイルを作成する
-- [ ] build_metadata_fetch_prompt関数のテスト（通常版、改善指示付き版）を実装する
-- [ ] build_metadata_evaluation_prompt関数のテストを実装する
-- [ ] build_improvement_proposal_prompt関数のテストを実装する
-- [ ] 各関数の戻り値が期待される文字列形式であることを確認する
-- [ ] `uv run pytest tests/test_prompts.py -v`が成功する
-- [ ] prompts.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_prompts.pyファイルを作成する
+- [x] build_metadata_fetch_prompt関数のテスト（通常版、改善指示付き版）を実装する
+- [x] build_metadata_evaluation_prompt関数のテストを実装する
+- [x] build_improvement_proposal_prompt関数のテストを実装する
+- [x] 各関数の戻り値が期待される文字列形式であることを確認する
+- [x] `uv run pytest tests/test_prompts.py -v`が成功する
+- [x] prompts.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-004: metadata_fetcher.pyの単体テスト作成（モック使用）
 

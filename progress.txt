@@ -39,6 +39,24 @@
 
 ---
 
+## イテレーション 3 - prompts.pyの単体テスト作成
+- 実装内容
+  - tests/test_prompts.pyを作成
+  - 3つのプロンプト生成関数（build_metadata_evaluation_prompt, build_improvement_proposal_prompt, build_metadata_fetch_prompt）の正常系テストを実装
+  - 各関数のエッジケース（空のリスト、「情報なし」、改善指示の有無）をテスト
+  - 合計10のテストケースを作成し、すべて成功
+- 変更したファイル
+  - app/tests/test_prompts.py: 新規作成（10テストケース）
+  - PRD.md: US-003を完了済みとしてマーク
+  - progress.txt: prompts.pyのカバレッジ100%を記録
+- 今後のイテレーションに向けた学習事項：
+  - プロンプト生成関数は文字列の整形が主な処理なので、出力に期待される文字列が含まれているかをアサートでテスト
+  - build_metadata_fetch_prompt関数はimprovement_instructionの有無で出力が変わるため、None、空文字列、通常の文字列の3パターンをテスト
+  - build_improvement_proposal_prompt関数内のformat_listネスト関数のカバレッジを100%にするため、空のメタデータを含むテストケースを追加
+  - prompts.pyは100%カバレッジを達成（26 statements, 0 missing）
+
+---
+
 ## カバレッジ記録
 
 ### ベースライン（US-001完了時）
@@ -60,7 +78,7 @@
 - models.py: 100%
 
 ### US-003完了時（prompts.py）
-- prompts.py: -%
+- prompts.py: 100%
 
 ### US-004完了時（metadata_fetcher.py）
 - metadata_fetcher.py: -%
