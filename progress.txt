@@ -118,8 +118,8 @@
 - refiner.py: 95%
 
 ### US-009完了時（csv_reader, json_writer）
-- csv_reader.py: -%
-- json_writer.py: -%
+- csv_reader.py: 91%
+- json_writer.py: 100%
 
 ### US-010完了時（genai_client, metadata_service）
 - genai_client.py: -%
@@ -215,5 +215,25 @@
   - time.sleepをモック化してテストを高速化
   - 160-161行目（RuntimeError）は到達不可能なコードなので、95%カバレッジで十分
   - refiner.pyは95%カバレッジを達成（44 statements, 2 missing）
+
+---
+
+## イテレーション 9 - 既存テストのカバレッジ向上（csv_reader, json_writer）
+- 実装内容
+  - test_csv_reader.pyに一般的な例外ハンドリングのテスト（ディレクトリをCSVとして読み込み）を追加
+  - test_json_writer.pyにファイル書き込み失敗時の例外処理テスト（読み取り専用ディレクトリ）を追加
+  - 合計2つのテストケースを追加し、すべて成功
+- 変更したファイル
+  - app/tests/test_csv_reader.py: test_csv_reader_general_exceptionを追加
+  - app/tests/test_json_writer.py: test_write_metadata_to_json_write_errorを追加、pytestインポートを追加
+  - PRD.md: US-009を完了済みとしてマーク
+  - progress.txt: csv_reader.pyとjson_writer.pyのカバレッジを記録
+- 今後のイテレーションに向けた学習事項：
+  - csv_reader.pyの56-60行目（行スキップ処理のcontinue文）は、Pydanticバリデーションエラーが発生した場合にのみ到達するが、MovieInputは文字列フィールドのみなのでバリデーションエラーを発生させるのは困難
+  - ディレクトリをファイルとして読み込むことで、予期しない例外（IsADirectoryError）を発生させ、一般的な例外ハンドリング（64-66行目）をテストできた
+  - json_writer.pyのファイル書き込みエラーは、親ディレクトリのパーミッションを読み取り専用に設定することで再現できる
+  - テスト後にパーミッションを復元するため、try-finallyブロックを使用
+  - csv_reader.pyは91%カバレッジを達成（32 statements, 3 missing: 56-60行目）
+  - json_writer.pyは100%カバレッジを達成（17 statements, 0 missing）
 
 ---

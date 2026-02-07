@@ -102,3 +102,16 @@ def test_csv_reader_skip_invalid_row(
     # 注: 現在のCSVReaderは空文字列も許容するため、すべての行が読み込まれる
     assert len(movies) >= 2  # 有効な行は最低2件
     assert movies[0].title == "Valid Movie"
+
+
+def test_csv_reader_general_exception(tmp_path: Path) -> None:
+    """一般的な例外（ValueError以外）をValueErrorに変換するテスト"""
+    # Arrange
+    # ディレクトリをCSVファイルとして指定することで、予期しない例外を発生させる
+    csv_dir = tmp_path / "not_a_file"
+    csv_dir.mkdir()
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="CSVファイルの読み込みに失敗しました"):
+        reader = CSVReader()
+        reader.read(csv_dir)

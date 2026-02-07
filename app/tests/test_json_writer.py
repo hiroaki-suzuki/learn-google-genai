@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from movie_metadata.json_writer import JSONWriter
 from movie_metadata.models import MovieMetadata
 
@@ -103,3 +105,23 @@ def test_write_metadata_to_json_japanese_characters(tmp_path: Path) -> None:
     assert data[0]["country"] == "日本"
     # ensure_ascii=Falseが機能しているか確認
     assert "千と千尋の神隠し" in content  # エスケープされていないことを確認
+
+
+def test_write_metadata_to_json_write_error(
+    tmp_path: Path, sample_movie_metadata: MovieMetadata
+) -> None:
+    """ファイル書き込み失敗時の例外処理テスト"""
+    # Arrange
+    output_file = tmp_path / "readonly_dir" / "output.json"
+    output_file.parent.mkdir()
+    # 親ディレクトリを読み取り専用にしてファイル作成を不可能にする
+    output_file.parent.chmod(0o444)
+    writer = JSONWriter()
+
+    # Act & Assert
+    try:
+        with pytest.raises(OSError, match="JSONファイルの書き込みに失敗しました"):
+            writer.write([sample_movie_metadata], output_file)
+    finally:
+        # クリーンアップ: パーミッションを復元
+        output_file.parent.chmod(0o755)
