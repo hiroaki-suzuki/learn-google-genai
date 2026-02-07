@@ -38,13 +38,13 @@
 
 **受入基準:**
 
-- [ ] `git filter-branch`または`git filter-repo`を使用して、全コミット履歴から`app/.env.test`を削除する
-- [ ] コミットメッセージは元の内容を維持する
-- [ ] `git log --all --oneline -- app/.env.test`で結果が空になることを確認する
-- [ ] `git reflog expire --expire=now --all`でreflogをクリーンアップする
-- [ ] `git gc --prune=now --aggressive`でガベージコレクションを実行する
-- [ ] リモートリポジトリへのpushは行わない（ローカルのみで作業完結）
-- [ ] コンソール出力で履歴クリーンアップが正しく完了したことを確認する
+- [x] `git filter-branch`または`git filter-repo`を使用して、全コミット履歴から`app/.env.test`を削除する
+- [x] コミットメッセージは元の内容を維持する
+- [x] `git log --all --oneline -- app/.env.test`で結果が空になることを確認する
+- [x] `git reflog expire --expire=now --all`でreflogをクリーンアップする
+- [x] `git gc --prune=now --aggressive`でガベージコレクションを実行する
+- [x] リモートリポジトリへのpushは行わない（ローカルのみで作業完結）
+- [x] コンソール出力で履歴クリーンアップが正しく完了したことを確認する
 
 **注意事項:**
 - この作業は破壊的な操作のため、実行前にバックアップを推奨

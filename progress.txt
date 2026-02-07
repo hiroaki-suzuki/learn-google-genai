@@ -23,3 +23,32 @@
 - **受入基準の確認**: `git check-ignore -v`コマンドで.gitignoreパターンが正しく動作しているか確認できる
 
 ---
+
+## イテレーション 2 - Git履歴から.env.testを完全に削除
+
+### 実装内容
+- `git bundle create /tmp/backup.bundle --all`でバックアップを作成
+- `git filter-branch`を使用して全コミット履歴から`app/.env.test`を削除
+- リモート追跡ブランチの参照を削除（`refs/remotes/upstream/main`）
+- `refs/original/`に残っていた元の参照を完全に削除
+- `git reflog expire --expire=now --all`でreflogをクリーンアップ
+- `git gc --prune=now --aggressive`でガベージコレクション実行
+- すべての受入基準を満たすことを確認
+
+### 変更したファイル
+- Gitリポジトリの内部状態（`.git/`ディレクトリ）
+
+### 今後のイテレーションに向けた学習事項
+- **git filter-branchの仕組み**: 履歴を書き換える際、新しいコミットIDが生成される（元のコミットIDとは異なる）
+- **refs/original/の存在**: `git filter-branch`は元の参照を`refs/original/`に保存するため、完全に削除するには`git update-ref -d`で明示的に削除が必要
+- **リモート追跡ブランチの影響**: ローカルのリモート追跡ブランチ（`refs/remotes/`）も古い履歴を保持するため、削除が必要
+- **git log --allの挙動**: すべての参照を追跡するため、古い参照が残っていると古い履歴も表示される
+- **完全な削除の手順**:
+  1. `git filter-branch`で履歴書き換え
+  2. `refs/original/`の削除（`git for-each-ref --format="%(refname)" refs/original/ | xargs -n 1 git update-ref -d`）
+  3. リモート追跡ブランチの削除（`git update-ref -d refs/remotes/upstream/main`）
+  4. reflogのクリーンアップ（`git reflog expire --expire=now --all`）
+  5. ガベージコレクション（`git gc --prune=now --aggressive`）
+- **バックアップの重要性**: `git bundle create`で全ブランチのバックアップを作成すると、問題発生時に復元できる
+
+---
