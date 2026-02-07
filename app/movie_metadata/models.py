@@ -37,3 +37,59 @@ class MovieMetadata(BaseModel):
     voice_actors: list[str] = Field(
         description="声優のリスト。アニメの場合は日本語声優、実写の場合は日本語吹き替え声優。該当しない場合は空のリストまたは['情報なし']を返す。"
     )
+
+
+# ========================================
+# メタデータ品質評価・改善ループ用モデル
+# ========================================
+
+
+class MetadataFieldScore(BaseModel):
+    """メタデータフィールドの評価スコア"""
+
+    field_name: str = Field(description="評価対象のフィールド名")
+    score: float = Field(description="0.0〜5.0のスコア", ge=0.0, le=5.0)
+    reasoning: str = Field(description="このスコアをつけた理由")
+
+
+class MetadataEvaluationResult(BaseModel):
+    """メタデータ評価結果"""
+
+    iteration: int = Field(description="イテレーション番号（1から開始）")
+    field_scores: list[MetadataFieldScore] = Field(description="各フィールドのスコア")
+    overall_status: str = Field(
+        description=(
+            "全体のステータス（'pass': すべて3.5以上, 'fail': 1つ以上が3.5未満）"
+        )
+    )
+    improvement_suggestions: str = Field(
+        description="改善提案（スコアが3.5未満のフィールドに対する具体的な提案）"
+    )
+
+
+class RefinementHistoryEntry(BaseModel):
+    """改善履歴のエントリ"""
+
+    iteration: int = Field(description="イテレーション番号")
+    metadata: MovieMetadata = Field(description="このイテレーションのメタデータ")
+    evaluation: MetadataEvaluationResult = Field(
+        description="このイテレーションの評価結果"
+    )
+
+
+class MetadataRefinementResult(BaseModel):
+    """メタデータ改善プロセスの最終結果"""
+
+    final_metadata: MovieMetadata = Field(description="最終的なメタデータ")
+    history: list[RefinementHistoryEntry] = Field(description="全イテレーションの履歴")
+    success: bool = Field(description="すべてのフィールドが閾値3.5以上を達成したか")
+    total_iterations: int = Field(description="実行したイテレーション数")
+
+
+class MetadataEvaluationOutput(BaseModel):
+    """メタデータ評価用のLLM出力スキーマ"""
+
+    field_scores: list[MetadataFieldScore] = Field(description="各フィールドのスコア")
+    improvement_suggestions: str = Field(
+        description="改善提案（スコアが3.5未満のフィールドに対する具体的な提案。すべて3.5以上なら'なし'）"
+    )
