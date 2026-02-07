@@ -210,6 +210,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Project-specific environment files
+app/.env*
+!app/.env.example
+
 # Spyder project settings
 .spyderproject
 .spyproject
