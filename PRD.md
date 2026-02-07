@@ -67,13 +67,13 @@
 **説明：** 開発者として、評価→改善提案→再取得のサイクルを自動的に繰り返す機能が必要である。これにより、すべての項目が基準を満たすまで処理を継続できる。
 
 **受け入れ基準：**
-- [ ] `MetadataRefiner`クラスを`movie_metadata/refiner.py`に作成
-- [ ] `refine(movie_input: MovieInput, max_iterations: int = 3, threshold: float = 3.5) -> MetadataRefinementResult`メソッドを実装
-- [ ] すべてのフィールドスコアが3.5以上になったら成功として終了
-- [ ] 最大3回のイテレーションで打ち切り
-- [ ] 各イテレーションの履歴（メタデータと評価結果）を記録
-- [ ] rate_limit_sleepを適切に適用
-- [ ] 型チェックが通過すること
+- [x] `MetadataRefiner`クラスを`movie_metadata/refiner.py`に作成
+- [x] `refine(movie_input: MovieInput, max_iterations: int = 3, threshold: float = 3.5) -> MetadataRefinementResult`メソッドを実装
+- [x] すべてのフィールドスコアが3.5以上になったら成功として終了
+- [x] 最大3回のイテレーションで打ち切り
+- [x] 各イテレーションの履歴（メタデータと評価結果）を記録
+- [x] rate_limit_sleepを適切に適用
+- [x] 型チェックが通過すること
 
 ### US-006: 結果出力機能を実装
 
