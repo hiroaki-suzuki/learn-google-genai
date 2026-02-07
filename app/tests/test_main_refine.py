@@ -1,5 +1,7 @@
 """main_refineモジュールのテスト"""
 
+import json
+
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -182,3 +184,75 @@ def test_main_refine_writes_timestamped_batch_file(
 
     expected_file = tmp_path / "batch_refinement_result_20260207_143025.json"
     assert expected_file.exists()
+
+
+def test_main_refine_batch_json_contains_all_results(
+    tmp_path, monkeypatch, mocker, sample_movie_metadata
+):
+    """生成されたJSONに全レコードの結果が含まれることを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=tmp_path,
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [
+        MovieInput(title="Movie A", release_date="2024-01-01", country="Japan"),
+        MovieInput(title="Movie B", release_date="2024-01-02", country="Japan"),
+    ]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    def build_result(title: str) -> MetadataRefinementResult:
+        metadata = sample_movie_metadata.model_copy(update={"title": title})
+        evaluation = MetadataEvaluationResult(
+            iteration=1,
+            field_scores=[
+                MetadataFieldScore(field_name="title", score=4.0, reasoning="良好")
+            ],
+            overall_status="pass",
+            improvement_suggestions="改善の必要なし",
+        )
+        history = [
+            RefinementHistoryEntry(
+                iteration=1, metadata=metadata, evaluation=evaluation
+            )
+        ]
+        return MetadataRefinementResult(
+            final_metadata=metadata,
+            history=history,
+            success=True,
+            total_iterations=1,
+        )
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.side_effect = [build_result("Movie A"), build_result("Movie B")]
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    from datetime import datetime as real_datetime
+
+    class FixedDateTime:
+        @classmethod
+        def now(cls):
+            return real_datetime(2026, 2, 7, 14, 30, 25)
+
+    monkeypatch.setattr(
+        "movie_metadata.refinement_writer.datetime",
+        FixedDateTime,
+    )
+
+    main_refine.main()
+
+    output_file = tmp_path / "batch_refinement_result_20260207_143025.json"
+    assert output_file.exists()
+
+    data = json.loads(output_file.read_text(encoding="utf-8"))
+    assert len(data["results"]) == len(movies)
+    titles = {result["final_metadata"]["title"] for result in data["results"]}
+    assert titles == {"Movie A", "Movie B"}
