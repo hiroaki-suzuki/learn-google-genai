@@ -102,9 +102,7 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
         mock_csv_reader.read.return_value = sample_movies
 
-        with patch.object(
-            service._fetcher, "fetch", side_effect=sample_metadata_list
-        ):
+        with patch.object(service._fetcher, "fetch", side_effect=sample_metadata_list):
             # Act
             result = service.process(csv_path, output_dir)
 

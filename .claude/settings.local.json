@@ -10,7 +10,8 @@
       "Bash(uv run ruff check:*)",
       "Bash(uv run:*)",
       "WebFetch(domain:arxiv.org)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

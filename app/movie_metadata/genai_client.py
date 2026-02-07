@@ -4,6 +4,8 @@ GenAI APIとの通信を管理する再利用可能なクライアントクラ�
 """
 
 import logging
+from collections.abc import Callable
+from typing import Any
 
 from google import genai
 from google.genai import types
@@ -94,7 +96,7 @@ class GenAIClient:
             google.genai.errors.APIError: その他のAPIエラー
             ValueError: レスポンスが空の場合
         """
-        tools: list[types.Tool] = []
+        tools: list[types.Tool | Callable[..., Any]] = []
         if use_google_search:
             tools.append(types.Tool(google_search=types.GoogleSearch()))
 

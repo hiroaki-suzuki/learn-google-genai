@@ -51,21 +51,21 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "Generated text"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         result = mock_genai_client.generate_content("test prompt")
 
         # Assert
         assert result == "Generated text"
-        mock_genai_client._client.models.generate_content.assert_called_once()
+        mock_genai_client._client.models.generate_content.assert_called_once()  # type: ignore[possibly-missing-attribute]
 
     def test_generate_content_with_schema(self, mock_genai_client: GenAIClient) -> None:
         """スキーマ付きコンテンツ生成でJSON MIMEタイプが設定されるテスト"""
         # Arrange
         mock_response = MagicMock()
         mock_response.text = '{"name": "test", "value": 42}'
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         result = mock_genai_client.generate_content(
@@ -74,7 +74,7 @@ class TestGenAIClientGenerateContent:
 
         # Assert
         assert result == '{"name": "test", "value": 42}'
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         config = call_kwargs.kwargs["config"]
         assert config.response_mime_type == "application/json"
         assert config.response_schema == SampleSchema
@@ -86,13 +86,13 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "plain text"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.generate_content("test prompt")
 
         # Assert
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         config = call_kwargs.kwargs["config"]
         assert config.response_mime_type is None
         assert config.response_schema is None
@@ -104,7 +104,7 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "Search result"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         result = mock_genai_client.generate_content(
@@ -113,7 +113,7 @@ class TestGenAIClientGenerateContent:
 
         # Assert
         assert result == "Search result"
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         config = call_kwargs.kwargs["config"]
         assert len(config.tools) == 1
 
@@ -124,13 +124,13 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "result"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.generate_content("test prompt", use_google_search=False)
 
         # Assert
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         config = call_kwargs.kwargs["config"]
         assert len(config.tools) == 0
 
@@ -141,7 +141,7 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = None
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act & Assert
         with pytest.raises(ValueError, match="API応答が空です"):
@@ -154,13 +154,13 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "result"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.generate_content("test prompt")
 
         # Assert
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         assert call_kwargs.kwargs["model"] == "test-model"
 
     def test_generate_content_passes_prompt(
@@ -170,13 +170,13 @@ class TestGenAIClientGenerateContent:
         # Arrange
         mock_response = MagicMock()
         mock_response.text = "result"
-        mock_genai_client._client.models.generate_content.return_value = mock_response
+        mock_genai_client._client.models.generate_content.return_value = mock_response  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.generate_content("my specific prompt")
 
         # Assert
-        call_kwargs = mock_genai_client._client.models.generate_content.call_args
+        call_kwargs = mock_genai_client._client.models.generate_content.call_args  # type: ignore[possibly-missing-attribute]
         assert call_kwargs.kwargs["contents"] == "my specific prompt"
 
 
@@ -194,7 +194,7 @@ class TestGenAIClientContextManager:
     def test_exit_calls_close(self, mock_genai_client: GenAIClient) -> None:
         """__exit__がclose()を呼び出すテスト"""
         # Arrange
-        mock_genai_client._client.close = MagicMock()
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.__exit__(None, None, None)
@@ -221,7 +221,7 @@ class TestGenAIClientContextManager:
     ) -> None:
         """例外発生時でもclose()が呼ばれるテスト"""
         # Arrange
-        mock_genai_client._client.close = MagicMock()
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.__exit__(ValueError, ValueError("test"), None)
@@ -234,7 +234,7 @@ class TestGenAIClientContextManager:
     ) -> None:
         """close()が内部clientのclose()を委譲するテスト"""
         # Arrange
-        mock_genai_client._client.close = MagicMock()
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.close()
@@ -245,7 +245,7 @@ class TestGenAIClientContextManager:
     def test_close_suppresses_errors(self, mock_genai_client: GenAIClient) -> None:
         """close()のエラーが抑制されるテスト"""
         # Arrange
-        mock_genai_client._client.close = MagicMock(
+        mock_genai_client._client.close = MagicMock(  # type: ignore[invalid-assignment]
             side_effect=RuntimeError("close failed")
         )
 
@@ -257,7 +257,7 @@ class TestGenAIClientContextManager:
     ) -> None:
         """複数回close()を呼んでも安全であるテスト"""
         # Arrange
-        mock_genai_client._client.close = MagicMock()
+        mock_genai_client._client.close = MagicMock()  # type: ignore[invalid-assignment]
 
         # Act
         mock_genai_client.close()
