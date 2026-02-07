@@ -88,6 +88,43 @@ def test_main_refine_records_errors_and_writes_batch(
     assert "エラーが発生した映画: Movie B" in caplog.text
 
 
+def test_main_refine_logs_progress_for_each_record(
+    mocker, caplog, sample_refinement_result
+):
+    """進捗ログがレコードごとに出力されることを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=Path("data/output"),
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [
+        MovieInput(title="Movie A", release_date="2024-01-01", country="Japan"),
+        MovieInput(title="Movie B", release_date="2024-01-02", country="Japan"),
+    ]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.return_value = sample_refinement_result
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    with caplog.at_level("INFO"):
+        main_refine.main()
+
+    assert "処理中: 1/2件完了（タイトル: Movie A）" in caplog.text
+    assert "処理中: 2/2件完了（タイトル: Movie B）" in caplog.text
+
+
 def test_main_refine_uses_csv_filename_env(monkeypatch, mocker, sample_refinement_result):
     """CSV_FILENAME環境変数が読み込まれることを確認"""
     monkeypatch.setenv("GEMINI_API_KEY", "test")
