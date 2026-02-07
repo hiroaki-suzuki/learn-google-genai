@@ -109,7 +109,7 @@
 - evaluator.py: 100%
 
 ### US-006完了時（improvement_proposer.py）
-- improvement_proposer.py: -%
+- improvement_proposer.py: 100%
 
 ### US-007完了時（refinement_writer.py）
 - refinement_writer.py: -%
@@ -150,5 +150,25 @@
   - overall_statusの判定ロジック：すべてのフィールドが3.5以上なら"pass"、1つでも3.5未満なら"fail"
   - 3.5は境界値で、3.5以上は"pass"判定になる
   - evaluator.pyは100%カバレッジを達成（26 statements, 0 missing）
+
+---
+
+## イテレーション 6 - improvement_proposer.pyの単体テスト作成（モック使用）
+- 実装内容
+  - tests/test_improvement_proposer.pyを作成
+  - ImprovementProposerクラスのpropose()メソッドの正常系テスト（pass判定、fail判定）を実装
+  - GenAIClientをモック化し、generate_contentの動作をシミュレート
+  - APIエラー時（ClientError, ServerError, APIError）の異常系テストを実装
+  - 予期しないエラー時に再送出するテストを実装
+  - 合計7のテストケースを作成し、すべて成功
+- 変更したファイル
+  - app/tests/test_improvement_proposer.py: 新規作成（7テストケース）
+  - PRD.md: US-006を完了済みとしてマーク
+  - progress.txt: improvement_proposer.pyのカバレッジ100%を記録
+- 今後のイテレーションに向けた学習事項：
+  - overall_status="pass"の場合、API呼び出しを行わずに"改善の必要なし"を即座に返すため、モック化は不要
+  - overall_status="fail"の場合のみGenAIClientをモック化して改善提案の生成をテスト
+  - propose()メソッドはevaluate()メソッドと同様に、generate_contentの呼び出しを1回だけ行う
+  - improvement_proposer.pyは100%カバレッジを達成（25 statements, 0 missing）
 
 ---

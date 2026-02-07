@@ -83,14 +83,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、改善提案生成機能をテストするため、test_improvement_proposer.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_improvement_proposer.pyファイルを作成する
-- [ ] GenAIClientをモック化し、propose()メソッドの正常系テストを実装する
-- [ ] overall_status="pass"の場合に"改善の必要なし"を返すテストを実装する
-- [ ] overall_status="fail"の場合に改善提案を生成するテストを実装する
-- [ ] API呼び出し失敗時の例外処理テストを実装する
-- [ ] `uv run pytest tests/test_improvement_proposer.py -v`が成功する
-- [ ] improvement_proposer.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_improvement_proposer.pyファイルを作成する
+- [x] GenAIClientをモック化し、propose()メソッドの正常系テストを実装する
+- [x] overall_status="pass"の場合に"改善の必要なし"を返すテストを実装する
+- [x] overall_status="fail"の場合に改善提案を生成するテストを実装する
+- [x] API呼び出し失敗時の例外処理テストを実装する
+- [x] `uv run pytest tests/test_improvement_proposer.py -v`が成功する
+- [x] improvement_proposer.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-007: refinement_writer.pyの単体テスト作成（モック使用）
 

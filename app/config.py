@@ -15,7 +15,7 @@ class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
     gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
-    csv_path: Path = Field(default=Path("data/movies_test.csv"))
+    csv_path: Path = Field(default=Path("data/movies_test3.csv"))
     output_dir: Path = Field(default=Path("data/output"))
     model_name: str = Field(default="gemini-3-flash-preview")
     rate_limit_sleep: float = Field(default=1.0)
