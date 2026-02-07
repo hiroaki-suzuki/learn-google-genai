@@ -115,7 +115,7 @@
 - refinement_writer.py: 100%
 
 ### US-008完了時（refiner.py）
-- refiner.py: -%
+- refiner.py: 95%
 
 ### US-009完了時（csv_reader, json_writer）
 - csv_reader.py: -%
@@ -192,5 +192,28 @@
   - タイムスタンプの精度が秒単位のため、同じ秒内に複数回書き込むと同じファイル名になり上書きされる（テストの信頼性を考慮して削除）
   - _sanitize_filename()メソッドは複数のケース（スペース置換、無効文字削除、長いタイトル切り詰め）を1つのテストで検証できる
   - refinement_writer.pyは100%カバレッジを達成（22 statements, 0 missing）
+
+---
+
+## イテレーション 8 - refiner.pyの統合テスト作成（モック使用）
+- 実装内容
+  - tests/test_refiner.pyを作成
+  - MetadataRefinerクラスのrefine()メソッドの正常系テスト（1イテレーション成功、2イテレーション成功）を実装
+  - 最大イテレーション数到達時の失敗テストを実装
+  - APIエラー時（ClientError, ServerError, APIError）の異常系テストを実装
+  - Evaluatorでのエラー処理テストを実装
+  - 合計8のテストケースを作成し、すべて成功
+- 変更したファイル
+  - app/tests/test_refiner.py: 新規作成（8テストケース）
+  - PRD.md: US-008を完了済みとしてマーク
+  - progress.txt: refiner.pyのカバレッジ95%を記録
+- 今後のイテレーションに向けた学習事項：
+  - refine()メソッドは複数のコンポーネント（fetcher, evaluator, proposer）を統合したループ処理のため、それぞれをモック化する必要がある
+  - GenAIClientはコンテキストマネージャー(__enter__/__exit__)として使用されるため、モック化には`__enter__.return_value`と`__exit__.return_value`を設定
+  - 初回イテレーションではfetch()、2回目以降はfetch_with_improvement()が呼ばれることをテストで確認
+  - 最終イテレーションではproposeは呼ばれない（passでループ終了、またはmax_iterations到達時）
+  - time.sleepをモック化してテストを高速化
+  - 160-161行目（RuntimeError）は到達不可能なコードなので、95%カバレッジで十分
+  - refiner.pyは95%カバレッジを達成（44 statements, 2 missing）
 
 ---

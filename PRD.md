@@ -111,14 +111,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、メタデータ改善ループ全体の動作をテストするため、test_refiner.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_refiner.pyファイルを作成する
-- [ ] GenAIClientをモック化し、refine()メソッドの正常系テスト（1イテレーションで成功）を実装する
-- [ ] 複数イテレーションでの改善ループテストを実装する
-- [ ] max_iterations到達時の失敗テストを実装する
-- [ ] API呼び出し失敗時の例外処理テストを実装する
-- [ ] `uv run pytest tests/test_refiner.py -v`が成功する
-- [ ] refiner.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_refiner.pyファイルを作成する
+- [x] GenAIClientをモック化し、refine()メソッドの正常系テスト（1イテレーションで成功）を実装する
+- [x] 複数イテレーションでの改善ループテストを実装する
+- [x] max_iterations到達時の失敗テストを実装する
+- [x] API呼び出し失敗時の例外処理テストを実装する
+- [x] `uv run pytest tests/test_refiner.py -v`が成功する
+- [x] refiner.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-009: 既存テストのカバレッジ向上（csv_reader, json_writer）
 
