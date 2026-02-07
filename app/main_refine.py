@@ -11,6 +11,7 @@ from pathlib import Path
 from config import AppConfig
 from logging_config import setup_logging
 from movie_metadata.csv_reader import CSVReader
+from movie_metadata.models import BatchRefinementResult
 from movie_metadata.refinement_writer import RefinementResultWriter
 from movie_metadata.refiner import MetadataRefiner
 
@@ -54,6 +55,7 @@ def main() -> None:
         start_time = time.perf_counter()
         total_count = len(movies)
         results = []
+        errors = []
 
         writer = RefinementResultWriter()
 
@@ -66,42 +68,61 @@ def main() -> None:
                 f"{movie_input.release_date})"
             )
 
-            result = refiner.refine(
-                movie_input=movie_input,
-                max_iterations=3,
-                threshold=3.5,
-            )
-            results.append(result)
-
-            # 結果を保存
-            writer.write(result, output_dir)
-            logger.info(f"結果をJSON形式で保存しました: {output_dir}")
-
-            # 最終結果をコンソールに表示
-            logger.info("=== 最終結果 ===")
-            logger.info(f"成功: {result.success}")
-            logger.info(f"総イテレーション数: {result.total_iterations}")
-
-            # 各イテレーションのスコアを表示
-            for i, entry in enumerate(result.history, start=1):
-                logger.info(f"\nイテレーション {i}:")
-                for field_score in entry.evaluation.field_scores:
-                    logger.info(
-                        f"  - {field_score.field_name}: {field_score.score:.2f}"
-                    )
-                logger.info(f"  ステータス: {entry.evaluation.overall_status}")
-
-            # 最終スコアサマリー
-            final_entry = result.history[-1]
-            logger.info("\n=== 最終スコア ===")
-            for field_score in final_entry.evaluation.field_scores:
-                status = "✓" if field_score.score >= 3.5 else "✗"
-                logger.info(
-                    f"{status} {field_score.field_name}: {field_score.score:.2f}"
+            try:
+                result = refiner.refine(
+                    movie_input=movie_input,
+                    max_iterations=3,
+                    threshold=3.5,
                 )
+                results.append(result)
+
+                # 最終結果をコンソールに表示
+                logger.info("=== 最終結果 ===")
+                logger.info(f"成功: {result.success}")
+                logger.info(f"総イテレーション数: {result.total_iterations}")
+
+                # 各イテレーションのスコアを表示
+                for i, entry in enumerate(result.history, start=1):
+                    logger.info(f"\nイテレーション {i}:")
+                    for field_score in entry.evaluation.field_scores:
+                        logger.info(
+                            f"  - {field_score.field_name}: {field_score.score:.2f}"
+                        )
+                    logger.info(f"  ステータス: {entry.evaluation.overall_status}")
+
+                # 最終スコアサマリー
+                final_entry = result.history[-1]
+                logger.info("\n=== 最終スコア ===")
+                for field_score in final_entry.evaluation.field_scores:
+                    status = "✓" if field_score.score >= 3.5 else "✗"
+                    logger.info(
+                        f"{status} {field_score.field_name}: {field_score.score:.2f}"
+                    )
+            except Exception as e:
+                logger.error("処理中にエラーが発生しました: %s", e, exc_info=True)
+                errors.append({"title": movie_input.title, "message": str(e)})
+                continue
 
         total_time = time.perf_counter() - start_time
         logger.info(f"総処理時間: {total_time:.2f}秒")
+
+        success_count = sum(result.success for result in results)
+        error_count = len(errors)
+        batch_result = BatchRefinementResult(
+            results=results,
+            total_count=total_count,
+            success_count=success_count,
+            error_count=error_count,
+            errors=errors,
+            processing_time=total_time,
+        )
+        writer.write_batch(batch_result, output_dir)
+        logger.info(f"バッチ結果をJSON形式で保存しました: {output_dir}")
+
+        if errors:
+            error_titles = ", ".join(error["title"] for error in errors)
+            logger.error(f"エラー件数: {error_count}")
+            logger.error(f"エラーが発生した映画: {error_titles}")
 
     except Exception as e:
         logger.error(f"処理中にエラーが発生しました: {e}", exc_info=True)

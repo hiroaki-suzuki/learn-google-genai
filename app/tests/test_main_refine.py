@@ -1,0 +1,85 @@
+"""main_refineモジュールのテスト"""
+
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+
+import main_refine
+from movie_metadata.models import (
+    MetadataEvaluationResult,
+    MetadataFieldScore,
+    MetadataRefinementResult,
+    MovieInput,
+    RefinementHistoryEntry,
+)
+
+
+@pytest.fixture
+def sample_refinement_result(sample_movie_metadata):
+    """テスト用MetadataRefinementResultフィクスチャ"""
+    evaluation = MetadataEvaluationResult(
+        iteration=1,
+        field_scores=[
+            MetadataFieldScore(field_name="title", score=4.0, reasoning="良好")
+        ],
+        overall_status="pass",
+        improvement_suggestions="改善の必要なし",
+    )
+    history = [
+        RefinementHistoryEntry(
+            iteration=1, metadata=sample_movie_metadata, evaluation=evaluation
+        )
+    ]
+    return MetadataRefinementResult(
+        final_metadata=sample_movie_metadata,
+        history=history,
+        success=True,
+        total_iterations=1,
+    )
+
+
+def test_main_refine_records_errors_and_writes_batch(
+    mocker, caplog, sample_refinement_result
+):
+    """エラーを記録し、バッチ結果を書き出すことを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=Path("data/output"),
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [
+        MovieInput(title="Movie A", release_date="2024-01-01", country="Japan"),
+        MovieInput(title="Movie B", release_date="2024-01-02", country="Japan"),
+    ]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.side_effect = [sample_refinement_result, RuntimeError("boom")]
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    mock_writer = mocker.MagicMock()
+    mocker.patch("main_refine.RefinementResultWriter", return_value=mock_writer)
+
+    with caplog.at_level("ERROR"):
+        main_refine.main()
+
+    assert mock_writer.write_batch.call_count == 1
+    batch_result, output_dir = mock_writer.write_batch.call_args.args
+    assert batch_result.total_count == 2
+    assert batch_result.success_count == 1
+    assert batch_result.error_count == 1
+    assert batch_result.errors == [{"title": "Movie B", "message": "boom"}]
+    expected_output_dir = Path(main_refine.__file__).parent / dummy_config.output_dir
+    assert output_dir == expected_output_dir
+
+    assert "エラー件数: 1" in caplog.text
+    assert "エラーが発生した映画: Movie B" in caplog.text
