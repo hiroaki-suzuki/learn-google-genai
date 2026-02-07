@@ -127,7 +127,8 @@ def refine_with_feedback(
     feedback: str | None = None
 
     print(
-        f"\n=== Self-Refinement開始 (閾値: {threshold}, 最大試行: {max_iterations}) ===\n"
+        f"\n=== Self-Refinement開始 (閾値: {threshold}, "
+        f"最大試行: {max_iterations}) ===\n"
     )
 
     for iteration in range(1, max_iterations + 1):

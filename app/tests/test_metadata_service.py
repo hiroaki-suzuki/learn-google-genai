@@ -102,9 +102,8 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
         mock_csv_reader.read.return_value = sample_movies
 
-        with patch(
-            "movie_metadata.metadata_service.fetch_movie_metadata",
-            side_effect=sample_metadata_list,
+        with patch.object(
+            service._fetcher, "fetch", side_effect=sample_metadata_list
         ):
             # Act
             result = service.process(csv_path, output_dir)
@@ -132,8 +131,9 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
         mock_csv_reader.read.return_value = sample_movies
 
-        with patch(
-            "movie_metadata.metadata_service.fetch_movie_metadata",
+        with patch.object(
+            service._fetcher,
+            "fetch",
             side_effect=[sample_metadata_list[0], RuntimeError("API error")],
         ):
             # Act
@@ -160,9 +160,8 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
         mock_csv_reader.read.return_value = sample_movies
 
-        with patch(
-            "movie_metadata.metadata_service.fetch_movie_metadata",
-            side_effect=RuntimeError("API error"),
+        with patch.object(
+            service._fetcher, "fetch", side_effect=RuntimeError("API error")
         ):
             # Act
             result = service.process(csv_path, output_dir)
@@ -215,14 +214,14 @@ class TestMetadataServiceProcess:
         # Assert
         assert output_dir.exists()
 
-    def test_process_passes_client_to_fetch(
+    def test_process_passes_movie_to_fetch(
         self,
         mock_client: MagicMock,
         mock_csv_reader: MagicMock,
         mock_json_writer: MagicMock,
         tmp_path: Path,
     ) -> None:
-        """fetch_movie_metadataにclientが正しく渡されるテスト"""
+        """fetcherのfetchメソッドにmovieが正しく渡されるテスト"""
         # Arrange
         service = MetadataService(
             client=mock_client,
@@ -248,15 +247,14 @@ class TestMetadataServiceProcess:
             voice_actors=["声優"],
         )
 
-        with patch(
-            "movie_metadata.metadata_service.fetch_movie_metadata",
-            return_value=metadata,
+        with patch.object(
+            service._fetcher, "fetch", return_value=metadata
         ) as mock_fetch:
             # Act
             service.process(csv_path, output_dir)
 
-        # Assert
-        mock_fetch.assert_called_once_with(movie, mock_client)
+            # Assert
+            mock_fetch.assert_called_once_with(movie)
 
     def test_process_output_json_filename_has_timestamp(
         self,
@@ -275,10 +273,7 @@ class TestMetadataServiceProcess:
         mock_csv_reader.read.return_value = sample_movies
 
         with (
-            patch(
-                "movie_metadata.metadata_service.fetch_movie_metadata",
-                side_effect=sample_metadata_list,
-            ),
+            patch.object(service._fetcher, "fetch", side_effect=sample_metadata_list),
             patch("movie_metadata.metadata_service.datetime") as mock_datetime,
         ):
             mock_datetime.now.return_value.strftime.return_value = "20240101_120000"
@@ -316,8 +311,9 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
 
         with (
-            patch(
-                "movie_metadata.metadata_service.fetch_movie_metadata",
+            patch.object(
+                service._fetcher,
+                "fetch",
                 side_effect=sample_metadata_list + [sample_metadata_list[0]],
             ),
             patch("movie_metadata.metadata_service.time.sleep") as mock_sleep,
@@ -354,9 +350,8 @@ class TestMetadataServiceProcess:
         output_dir = tmp_path / "output"
 
         with (
-            patch(
-                "movie_metadata.metadata_service.fetch_movie_metadata",
-                return_value=sample_metadata_list[0],
+            patch.object(
+                service._fetcher, "fetch", return_value=sample_metadata_list[0]
             ),
             patch("movie_metadata.metadata_service.time.sleep") as mock_sleep,
         ):

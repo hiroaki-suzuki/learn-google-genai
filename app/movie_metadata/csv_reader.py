@@ -54,7 +54,9 @@ class CSVReader:
                         )
                         movies.append(movie)
                     except Exception as e:
-                        logger.warning(f"行 {row_num} をスキップしました（エラー: {e}）")
+                        logger.warning(
+                            f"行 {row_num} をスキップしました（エラー: {e}）"
+                        )
                         continue
 
         except ValueError:

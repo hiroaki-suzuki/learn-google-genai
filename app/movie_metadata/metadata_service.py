@@ -12,7 +12,7 @@ from typing import TypedDict
 from movie_metadata.csv_reader import CSVReader
 from movie_metadata.genai_client import GenAIClient
 from movie_metadata.json_writer import JSONWriter
-from movie_metadata.metadata_fetcher import fetch_movie_metadata
+from movie_metadata.metadata_fetcher import MovieMetadataFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,7 @@ class MetadataService:
         self._csv_reader = csv_reader
         self._json_writer = json_writer
         self._rate_limit_sleep = rate_limit_sleep
+        self._fetcher = MovieMetadataFetcher(client)
 
     def process(
         self,
@@ -76,7 +77,7 @@ class MetadataService:
             logger.info(f"処理中 [{i}/{total}]: {movie.title}")
 
             try:
-                metadata = fetch_movie_metadata(movie, self._client)
+                metadata = self._fetcher.fetch(movie)
                 metadata_list.append(metadata)
 
                 # レート制限対策: 最後の映画以外は待機
