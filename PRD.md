@@ -55,14 +55,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、GenAI APIを実際に呼び出すことなくメタデータ取得機能をテストするため、test_metadata_fetcher.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_metadata_fetcher.pyファイルを作成する
-- [ ] GenAIClientをモック化し、fetch()メソッドの正常系テストを実装する
-- [ ] fetch_with_improvement()メソッドの正常系テストを実装する
-- [ ] APIエラー時（ClientError, ServerError, APIError）の異常系テストを実装する
-- [ ] 空のレスポンス時のデフォルト値返却テストを実装する
-- [ ] `uv run pytest tests/test_metadata_fetcher.py -v`が成功する
-- [ ] metadata_fetcher.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_metadata_fetcher.pyファイルを作成する
+- [x] GenAIClientをモック化し、fetch()メソッドの正常系テストを実装する
+- [x] fetch_with_improvement()メソッドの正常系テストを実装する
+- [x] APIエラー時（ClientError, ServerError, APIError）の異常系テストを実装する
+- [x] 空のレスポンス時のデフォルト値返却テストを実装する
+- [x] `uv run pytest tests/test_metadata_fetcher.py -v`が成功する
+- [x] metadata_fetcher.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-005: evaluator.pyの単体テスト作成（モック使用）
 

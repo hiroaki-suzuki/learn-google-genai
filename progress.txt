@@ -57,6 +57,28 @@
 
 ---
 
+## イテレーション 4 - metadata_fetcher.pyの単体テスト作成（モック使用）
+- 実装内容
+  - tests/test_metadata_fetcher.pyを作成
+  - MovieMetadataFetcherクラスの正常系テスト（fetch、fetch_with_improvement）を実装
+  - GenAIClientをモック化し、generate_contentの動作をシミュレート
+  - APIエラー時（ClientError, ServerError, APIError）の異常系テストを実装
+  - ValueError時にデフォルト値を返却するテストを実装
+  - 予期しないエラー時に再送出するテストを実装
+  - 合計10のテストケースを作成し、すべて成功
+- 変更したファイル
+  - app/tests/test_metadata_fetcher.py: 新規作成（10テストケース）
+  - PRD.md: US-004を完了済みとしてマーク
+  - progress.txt: metadata_fetcher.pyのカバレッジ100%を記録
+- 今後のイテレーションに向けた学習事項：
+  - google.genai.errorsのエラークラス（ClientError, ServerError, APIError）の初期化には、code（int）とresponse_json（dict）の2つの引数が必要
+  - response_jsonの構造は`{"error": {"message": "エラーメッセージ"}}`の形式で、_get_messageメソッドが`response_json.get('error', {}).get('message', None)`を呼び出すため、errorフィールドは辞書である必要がある
+  - conftest.pyのmock_genai_clientフィクスチャを活用してテストコードを簡潔に記述
+  - モックのside_effectを使用して、特定の例外を発生させることができる
+  - metadata_fetcher.pyは100%カバレッジを達成（51 statements, 0 missing）
+
+---
+
 ## カバレッジ記録
 
 ### ベースライン（US-001完了時）
@@ -81,7 +103,7 @@
 - prompts.py: 100%
 
 ### US-004完了時（metadata_fetcher.py）
-- metadata_fetcher.py: -%
+- metadata_fetcher.py: 100%
 
 ### US-005完了時（evaluator.py）
 - evaluator.py: -%
