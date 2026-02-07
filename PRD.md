@@ -39,17 +39,17 @@
 
 **受け入れ基準:**
 
-- [ ] `movie_metadata/models.py`に`BatchRefinementResult`モデルを追加する
-- [ ] `BatchRefinementResult`は以下のフィールドを含む：
+- [x] `movie_metadata/models.py`に`BatchRefinementResult`モデルを追加する
+- [x] `BatchRefinementResult`は以下のフィールドを含む：
   - `results: list[MetadataRefinementResult]` - 各映画の処理結果
   - `total_count: int` - 処理対象の総件数
   - `success_count: int` - 成功した件数
   - `error_count: int` - エラーが発生した件数
   - `errors: list[dict]` - エラー情報（映画タイトル、エラーメッセージを含む）
   - `processing_time: float` - 全体の処理時間（秒）
-- [ ] 品質チェック（フォーマット、Lint、型チェック）が通過すること
-- [ ] モデルの単体テストを作成し合格すること
-- [ ] テストカバレッジが基準値を満たすこと
+- [x] 品質チェック（フォーマット、Lint、型チェック）が通過すること
+- [x] モデルの単体テストを作成し合格すること
+- [x] テストカバレッジが基準値を満たすこと
 
 ### US-003: タイムスタンプ付きファイル名でJSON出力する機能を実装
 

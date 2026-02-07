@@ -26,3 +26,14 @@
 （実装過程で発見されたパターンや知見）
 
 ---
+## イテレーション 2 - US-002: 複数レコード結果を保存するデータモデルの拡張
+- 実装内容
+- `BatchRefinementResult`モデルを追加し、バッチ処理の統計情報とエラー情報を保持できるようにした
+- `BatchRefinementResult`の単体テストを追加し、成功/エラーケースを検証した
+- 変更したファイル
+- `app/movie_metadata/models.py`
+- `app/tests/test_models.py`
+- 今後のイテレーションに向けた学習事項：
+- `BatchRefinementResult`の`errors`は`list[dict[str, str]]`で保持し、映画タイトルとエラーメッセージを格納する
+- モデル追加時は既存テストのフィクスチャを再利用するとテストが簡潔になる
+---

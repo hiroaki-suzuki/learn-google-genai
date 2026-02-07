@@ -86,6 +86,19 @@ class MetadataRefinementResult(BaseModel):
     total_iterations: int = Field(description="実行したイテレーション数")
 
 
+class BatchRefinementResult(BaseModel):
+    """複数レコードの改善結果"""
+
+    results: list[MetadataRefinementResult] = Field(description="各映画の処理結果")
+    total_count: int = Field(description="処理対象の総件数")
+    success_count: int = Field(description="成功した件数")
+    error_count: int = Field(description="エラーが発生した件数")
+    errors: list[dict[str, str]] = Field(
+        description="エラー情報（映画タイトル、エラーメッセージを含む）"
+    )
+    processing_time: float = Field(description="全体の処理時間（秒）")
+
+
 class MetadataEvaluationOutput(BaseModel):
     """メタデータ評価用のLLM出力スキーマ"""
 

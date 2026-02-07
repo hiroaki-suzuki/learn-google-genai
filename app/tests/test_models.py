@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from movie_metadata.models import (
+    BatchRefinementResult,
     MetadataEvaluationOutput,
     MetadataEvaluationResult,
     MetadataFieldScore,
@@ -229,6 +230,62 @@ class TestMetadataRefinementResult:
         )
         assert result.success is False
         assert result.total_iterations == 3
+
+
+class TestBatchRefinementResult:
+    """BatchRefinementResultモデルのテスト"""
+
+    def test_valid_batch_refinement_result(
+        self, sample_movie_metadata: MovieMetadata
+    ) -> None:
+        """正常系: 有効なバッチ改善結果を作成"""
+        field_scores = [
+            MetadataFieldScore(field_name="title", score=4.0, reasoning="良い")
+        ]
+        evaluation = MetadataEvaluationResult(
+            iteration=1,
+            field_scores=field_scores,
+            overall_status="pass",
+            improvement_suggestions="なし",
+        )
+        entry = RefinementHistoryEntry(
+            iteration=1, metadata=sample_movie_metadata, evaluation=evaluation
+        )
+        refinement_result = MetadataRefinementResult(
+            final_metadata=sample_movie_metadata,
+            history=[entry],
+            success=True,
+            total_iterations=1,
+        )
+
+        batch = BatchRefinementResult(
+            results=[refinement_result],
+            total_count=1,
+            success_count=1,
+            error_count=0,
+            errors=[],
+            processing_time=1.23,
+        )
+
+        assert batch.total_count == 1
+        assert batch.success_count == 1
+        assert batch.error_count == 0
+        assert batch.processing_time == 1.23
+        assert batch.results[0].final_metadata.title == sample_movie_metadata.title
+
+    def test_batch_refinement_result_with_errors(self) -> None:
+        """正常系: エラー情報を含むバッチ改善結果"""
+        batch = BatchRefinementResult(
+            results=[],
+            total_count=2,
+            success_count=1,
+            error_count=1,
+            errors=[{"title": "Missing Movie", "message": "Not found"}],
+            processing_time=0.5,
+        )
+
+        assert batch.error_count == 1
+        assert batch.errors == [{"title": "Missing Movie", "message": "Not found"}]
 
 
 class TestMetadataEvaluationOutput:
