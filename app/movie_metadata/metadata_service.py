@@ -65,7 +65,7 @@ class MetadataService:
 
         # CSV読み込み
         movies = self._csv_reader.read(csv_path)
-        logger.info(f"Loaded {len(movies)} movies from CSV")
+        logger.info(f"CSVから {len(movies)} 件の映画を読み込みました")
 
         # 各映画のメタデータを取得
         metadata_list = []
@@ -73,7 +73,7 @@ class MetadataService:
         failed_count = 0
 
         for i, movie in enumerate(movies, start=1):
-            logger.info(f"Processing [{i}/{total}]: {movie.title}")
+            logger.info(f"処理中 [{i}/{total}]: {movie.title}")
 
             try:
                 metadata = fetch_movie_metadata(movie, self._client)
@@ -84,7 +84,7 @@ class MetadataService:
                     time.sleep(self._rate_limit_sleep)
 
             except Exception as e:
-                logger.error(f"Failed to fetch metadata for {movie.title}: {e}")
+                logger.error(f"{movie.title} のメタデータ取得に失敗しました: {e}")
                 failed_count += 1
                 continue
 

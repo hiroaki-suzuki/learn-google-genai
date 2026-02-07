@@ -39,7 +39,7 @@ def fetch_movie_metadata(
         errors.APIError: その他のAPIエラー
         Exception: 予期しないエラー
     """
-    logger.info(f"Fetching metadata for: {movie_input.title}")
+    logger.info(f"メタデータを取得中: {movie_input.title}")
 
     # プロンプト作成（descriptionを活用）
     input_info = _build_input_info(movie_input)
@@ -73,22 +73,22 @@ def fetch_movie_metadata(
 
         # Pydanticモデルでパース
         metadata = MovieMetadata.model_validate_json(response_text)
-        logger.info(f"Successfully fetched metadata for {movie_input.title}")
+        logger.info(f"{movie_input.title} のメタデータを取得しました")
         return metadata
 
     except errors.ClientError as e:
-        logger.error(f"Client error for {movie_input.title}: {e}")
+        logger.error(f"{movie_input.title} のクライアントエラー: {e}")
         raise
     except errors.ServerError as e:
-        logger.error(f"Server error for {movie_input.title}: {e}")
+        logger.error(f"{movie_input.title} のサーバーエラー: {e}")
         raise
     except errors.APIError as e:
-        logger.error(f"API error for {movie_input.title}: {e}")
+        logger.error(f"{movie_input.title} のAPIエラー: {e}")
         raise
     except ValueError as e:
         # 空のレスポンスの場合はデフォルト値で返す
         logger.warning(
-            f"Returning default metadata for {movie_input.title} due to: {e}"
+            f"{movie_input.title} のデフォルトメタデータを返します（理由: {e}）"
         )
         return MovieMetadata(
             title=movie_input.title,
@@ -103,5 +103,5 @@ def fetch_movie_metadata(
         )
     except Exception:
         # 予期しないエラーの場合はログに記録して再送出
-        logger.exception(f"Unexpected error for {movie_input.title}")
+        logger.exception(f"{movie_input.title} の予期しないエラー")
         raise

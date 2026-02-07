@@ -26,10 +26,10 @@ class CSVReader:
             FileNotFoundError: CSVファイルが存在しない場合
             ValueError: CSVフォーマットが不正な場合
         """
-        logger.debug(f"Reading CSV from: {csv_path}")
+        logger.debug(f"CSVファイルを読み込み中: {csv_path}")
 
         if not csv_path.exists():
-            logger.error(f"CSV file not found: {csv_path}")
+            logger.error(f"CSVファイルが見つかりません: {csv_path}")
             raise FileNotFoundError(f"CSVファイルが見つかりません: {csv_path}")
 
         movies: list[MovieInput] = []
@@ -54,14 +54,14 @@ class CSVReader:
                         )
                         movies.append(movie)
                     except Exception as e:
-                        logger.warning(f"Skipping row {row_num} due to error: {e}")
+                        logger.warning(f"行 {row_num} をスキップしました（エラー: {e}）")
                         continue
 
         except ValueError:
             raise
         except Exception as e:
-            logger.error(f"Failed to read CSV file: {e}")
+            logger.error(f"CSVファイルの読み込みに失敗しました: {e}")
             raise ValueError(f"CSVファイルの読み込みに失敗しました: {e}") from e
 
-        logger.info(f"Successfully read {len(movies)} movies from {csv_path}")
+        logger.info(f"{csv_path} から {len(movies)} 件の映画を読み込みました")
         return movies

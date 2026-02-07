@@ -27,7 +27,7 @@ class JSONWriter:
         Raises:
             OSError: ファイル書き込みに失敗した場合
         """
-        logger.debug(f"Writing metadata to: {output_path}")
+        logger.debug(f"メタデータを出力中: {output_path}")
 
         # 出力ディレクトリが存在しない場合は作成
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -45,9 +45,9 @@ class JSONWriter:
                 )
 
             logger.info(
-                f"Successfully wrote {len(metadata_list)} metadata to {output_path}"
+                f"{output_path} に {len(metadata_list)} 件のメタデータを出力しました"
             )
 
         except Exception as e:
-            logger.error(f"Failed to write JSON file: {e}")
+            logger.error(f"JSONファイルの書き込みに失敗しました: {e}")
             raise OSError(f"JSONファイルの書き込みに失敗しました: {e}") from e

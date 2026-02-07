@@ -39,11 +39,11 @@ class GenAIClient:
     ) -> None:
         self._client = genai.Client(api_key=api_key)
         self._model_name = model_name
-        logger.info(f"GenAIClient initialized with model: {model_name}")
+        logger.info(f"GenAIクライアントを初期化しました（モデル: {model_name}）")
 
     def __enter__(self) -> GenAIClient:
         """コンテキストマネージャーのエントリーポイント"""
-        logger.debug("GenAIClient context manager entered")
+        logger.debug("GenAIクライアントのコンテキストマネージャーに入りました")
         return self
 
     def __exit__(
@@ -54,18 +54,18 @@ class GenAIClient:
     ) -> None:
         """コンテキストマネージャーの終了処理"""
         logger.debug(
-            f"GenAIClient context manager exiting "
-            f"(exception={'yes' if exc_type else 'no'})"
+            f"GenAIクライアントのコンテキストマネージャーを終了します "
+            f"（例外: {'あり' if exc_type else 'なし'}）"
         )
         self.close()
 
     def close(self) -> None:
         """クライアントをクローズし、リソースを解放"""
         try:
-            logger.info("Closing GenAIClient and releasing resources")
+            logger.info("GenAIクライアントを終了し、リソースを解放しています")
             self._client.close()
         except Exception as e:
-            logger.warning(f"Error during GenAIClient.close(): {e}")
+            logger.warning(f"GenAIクライアントのクローズ中にエラーが発生しました: {e}")
 
     @property
     def model_name(self) -> str:
@@ -105,8 +105,8 @@ class GenAIClient:
         )
 
         logger.debug(
-            f"Generating content with model={self._model_name}, "
-            f"search={use_google_search}, schema={response_schema}"
+            f"コンテンツを生成中（モデル: {self._model_name}, "
+            f"検索: {use_google_search}, スキーマ: {response_schema}）"
         )
 
         response = self._client.models.generate_content(
