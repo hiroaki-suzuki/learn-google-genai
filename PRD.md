@@ -45,12 +45,12 @@
 **説明：** 開発者として、評価結果に基づいてメタデータの改善方法を提案する機能が必要である。これにより、次のイテレーションで精度向上を図れる。
 
 **受け入れ基準：**
-- [ ] `ImprovementProposer`クラスを`movie_metadata/improvement_proposer.py`に作成
-- [ ] `propose(movie_input: MovieInput, current_metadata: MovieMetadata, evaluation: MetadataEvaluationResult) -> str`メソッドを実装
-- [ ] スコアが3.5未満のフィールドに対する具体的な改善指示を生成
-- [ ] 改善指示には検索クエリの変更案や情報源の指定を含む
-- [ ] GenAIClientを使用してLLMで改善提案を生成
-- [ ] 型チェックが通過すること
+- [x] `ImprovementProposer`クラスを`movie_metadata/improvement_proposer.py`に作成
+- [x] `propose(movie_input: MovieInput, current_metadata: MovieMetadata, evaluation: MetadataEvaluationResult) -> str`メソッドを実装
+- [x] スコアが3.5未満のフィールドに対する具体的な改善指示を生成
+- [x] 改善指示には検索クエリの変更案や情報源の指定を含む
+- [x] GenAIClientを使用してLLMで改善提案を生成
+- [x] 型チェックが通過すること
 
 ### US-004: メタデータ再取得・改善機能を実装
 
