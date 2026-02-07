@@ -67,3 +67,49 @@
 - 環境変数の命名規則：大文字のスネークケース（例：QUALITY_SCORE_THRESHOLD）
 
 ---
+
+## イテレーション 3 - US-002: 環境変数読み込みロジックの実装（完了）
+
+### 実施内容
+- get_env_file()関数を実装し、ENV環境変数に基づいて適切な.envファイルを選択
+- ENV="test"の場合は.env.testを、未設定または"production"の場合は.envを読み込む
+- 環境変数ファイルが存在しない場合のエラーハンドリングを実装
+- AppConfigクラスにquality_score_thresholdフィールドを追加（US-003の一部だが、テスト通過に必要）
+- 既存のテストを修正し、新しい環境変数読み込みロジックに対応
+- 変更したファイル：
+  - /workspaces/learn-google-genai/app/config.py
+  - /workspaces/learn-google-genai/app/tests/test_config.py
+  - /workspaces/learn-google-genai/PRD.md
+
+### 品質チェック結果
+- フォーマット：合格
+- Lint：合格（SIM108ルールに従い三項演算子を使用）
+- 型チェック：合格
+- すべてのテスト：147件合格（100%）
+- config.pyのテストカバレッジ：100%
+
+### 解決した問題
+- pydantic_settingsのSettingsConfigDictでenv_fileパラメータに関数の戻り値を使用
+- 既存のテストが.envファイルを読み込んでしまう問題を、_env_fileパラメータで解決
+- 型チェッカーが_env_fileを認識しない問題を、type: ignore[call-arg]で解決
+
+### 今後のイテレーションに向けた学習事項
+- pydantic_settingsは、SettingsConfigDict(env_file=...)に関数呼び出しを直接指定できる
+- クラス定義時に関数が評価されるため、環境変数（ENV）の値に基づいて動的にファイルを選択可能
+- テストで特定の.envファイルを使用したい場合、AppConfig(_env_file="path")で上書き可能
+- _env_fileパラメータは型定義されていないため、type: ignore[call-arg]が必要
+- 環境変数管理のパターン：
+  ```python
+  def get_env_file() -> str:
+      env = os.getenv("ENV", "production")
+      env_file = ".env.test" if env == "test" else ".env"
+      if not Path(env_file).exists():
+          raise FileNotFoundError(f"環境変数ファイル '{env_file}' が見つかりません。")
+      return env_file
+  
+  class AppConfig(BaseSettings):
+      model_config = SettingsConfigDict(env_file=get_env_file())
+  ```
+- US-002とUS-003は密接に関連しており、AppConfigにquality_score_thresholdフィールドを追加する必要があった
+
+---

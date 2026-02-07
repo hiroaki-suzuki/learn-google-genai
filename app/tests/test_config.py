@@ -3,7 +3,9 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from config import AppConfig
+import pytest
+
+from config import AppConfig, get_env_file
 
 
 class TestAppConfigCSVPath:
@@ -59,11 +61,81 @@ class TestAppConfigCSVPath:
         assert hasattr(config, "csv_filename")
         assert config.csv_filename == "test.csv"
 
-    def test_csv_filename_is_none_when_not_set(self) -> None:
+    def test_csv_filename_is_none_when_not_set(self, tmp_path: Path) -> None:
         """CSV_FILENAMEが設定されていない場合、csv_filenameはNoneであるテスト"""
-        # Arrange & Act
+        # Arrange - CSV_FILENAMEを含まない一時的な.envファイルを作成
+        test_env_file = tmp_path / ".env.test_custom"
+        test_env_file.write_text("GEMINI_API_KEY=test-key\n")
+
+        # Act - _env_fileパラメータで明示的に環境ファイルを指定
+        # 型チェッカーは_env_fileを認識しないが、実行時には正常に動作する
         with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}, clear=True):
-            config = AppConfig()
+            config = AppConfig(_env_file=str(test_env_file))  # type: ignore[call-arg]
 
         # Assert
         assert config.csv_filename is None
+
+
+class TestGetEnvFile:
+    """get_env_file関数のテストクラス"""
+
+    def test_returns_env_test_when_env_is_test(self, tmp_path: Path) -> None:
+        """ENV=testの場合、.env.testを返すテスト"""
+        # Arrange
+        env_test_file = tmp_path / ".env.test"
+        env_test_file.write_text("TEST=true")
+
+        # Act & Assert
+        with (
+            patch.dict("os.environ", {"ENV": "test"}, clear=True),
+            patch("config.Path") as mock_path,
+        ):
+            mock_path.return_value.exists.return_value = True
+            result = get_env_file()
+            assert result == ".env.test"
+
+    def test_returns_env_when_env_is_production(self, tmp_path: Path) -> None:
+        """ENV=productionの場合、.envを返すテスト"""
+        # Arrange
+        env_file = tmp_path / ".env"
+        env_file.write_text("PRODUCTION=true")
+
+        # Act & Assert
+        with (
+            patch.dict("os.environ", {"ENV": "production"}, clear=True),
+            patch("config.Path") as mock_path,
+        ):
+            mock_path.return_value.exists.return_value = True
+            result = get_env_file()
+            assert result == ".env"
+
+    def test_returns_env_when_env_not_set(self, tmp_path: Path) -> None:
+        """ENV未設定の場合、.envを返すテスト（デフォルト値）"""
+        # Arrange
+        env_file = tmp_path / ".env"
+        env_file.write_text("DEFAULT=true")
+
+        # Act & Assert
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            patch("config.Path") as mock_path,
+        ):
+            mock_path.return_value.exists.return_value = True
+            result = get_env_file()
+            assert result == ".env"
+
+    def test_raises_file_not_found_error_when_env_file_missing(
+        self,
+    ) -> None:
+        """環境変数ファイルが存在しない場合、FileNotFoundErrorを発生させるテスト"""
+        # Act & Assert
+        with (
+            patch.dict("os.environ", {"ENV": "test"}, clear=True),
+            patch("config.Path") as mock_path,
+        ):
+            mock_path.return_value.exists.return_value = False
+            with pytest.raises(FileNotFoundError) as exc_info:
+                get_env_file()
+
+            assert ".env.test" in str(exc_info.value)
+            assert "見つかりません" in str(exc_info.value)
