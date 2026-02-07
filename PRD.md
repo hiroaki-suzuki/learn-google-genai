@@ -72,12 +72,12 @@
 
 **受入基準:**
 
-- [ ] `app/.env.test`ファイルを作成する（Git管理対象外）
-- [ ] `.env.example`の内容をベースにコピーする
-- [ ] `QUALITY_SCORE_THRESHOLD`を`3.5`に設定する
-- [ ] `ENV`変数を`test`に設定する（存在する場合）
-- [ ] `git status`で`.env.test`がuntracked filesとして表示されないことを確認する
-- [ ] コンソール出力で変更が正しく反映されていることを確認する
+- [x] `app/.env.test`ファイルを作成する（Git管理対象外）
+- [x] `.env.example`の内容をベースにコピーする
+- [x] `QUALITY_SCORE_THRESHOLD`を`3.5`に設定する
+- [x] `ENV`変数を`test`に設定する（存在する場合）
+- [x] `git status`で`.env.test`がuntracked filesとして表示されないことを確認する
+- [x] コンソール出力で変更が正しく反映されていることを確認する
 
 ---
 
