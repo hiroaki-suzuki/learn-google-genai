@@ -1,12 +1,14 @@
 """refinement_writer.pyの単体テスト"""
 
 import json
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import pytest
 
 from movie_metadata.models import (
+    BatchRefinementResult,
     MetadataEvaluationResult,
     MetadataFieldScore,
     MetadataRefinementResult,
@@ -54,6 +56,21 @@ def sample_refinement_result() -> MetadataRefinementResult:
         history=history,
         success=True,
         total_iterations=1,
+    )
+
+
+@pytest.fixture
+def sample_batch_result(
+    sample_refinement_result: MetadataRefinementResult,
+) -> BatchRefinementResult:
+    """テスト用BatchRefinementResultフィクスチャ"""
+    return BatchRefinementResult(
+        results=[sample_refinement_result],
+        total_count=1,
+        success_count=1,
+        error_count=0,
+        errors=[],
+        processing_time=12.5,
     )
 
 
@@ -185,3 +202,66 @@ class TestRefinementResultWriter:
         # ファイルが作成されたことを確認
         json_files = list(output_dir.glob("*.json"))
         assert len(json_files) == 1
+
+    def test_write_batch_creates_json_file(
+        self, tmp_path: Path, sample_batch_result: BatchRefinementResult
+    ) -> None:
+        """write_batch()メソッドがJSONファイルを作成することをテスト"""
+        writer = RefinementResultWriter()
+        output_dir = tmp_path / "output"
+
+        writer.write_batch(sample_batch_result, output_dir)
+
+        json_files = list(output_dir.glob("*.json"))
+        assert len(json_files) == 1
+        assert json_files[0].name.startswith("batch_refinement_result_")
+        assert json_files[0].name.endswith(".json")
+
+    def test_write_batch_creates_directory_if_not_exists(
+        self, tmp_path: Path, sample_batch_result: BatchRefinementResult
+    ) -> None:
+        """write_batch()がディレクトリを作成することをテスト"""
+        writer = RefinementResultWriter()
+        output_dir = tmp_path / "nested" / "output" / "dir"
+
+        assert not output_dir.exists()
+
+        writer.write_batch(sample_batch_result, output_dir)
+
+        assert output_dir.exists()
+        assert output_dir.is_dir()
+
+    def test_write_batch_json_content_is_valid(
+        self, tmp_path: Path, sample_batch_result: BatchRefinementResult
+    ) -> None:
+        """出力されたJSONファイルの内容が正しいことをテスト"""
+        writer = RefinementResultWriter()
+        output_dir = tmp_path / "output"
+
+        writer.write_batch(sample_batch_result, output_dir)
+
+        json_files = list(output_dir.glob("*.json"))
+        with json_files[0].open("r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        assert data["total_count"] == 1
+        assert data["success_count"] == 1
+        assert data["error_count"] == 0
+        assert data["errors"] == []
+        assert data["processing_time"] == 12.5
+        assert data["results"][0]["final_metadata"]["title"] == "Test Movie"
+
+    def test_write_batch_uses_timestamp_format(
+        self, tmp_path: Path, sample_batch_result: BatchRefinementResult
+    ) -> None:
+        """write_batch()がタイムスタンプ付きのファイル名を使うことをテスト"""
+        writer = RefinementResultWriter()
+        output_dir = tmp_path / "output"
+
+        with patch("movie_metadata.refinement_writer.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime(2026, 2, 7, 14, 30, 25)
+            writer.write_batch(sample_batch_result, output_dir)
+
+        json_files = list(output_dir.glob("*.json"))
+        assert len(json_files) == 1
+        assert json_files[0].name == "batch_refinement_result_20260207_143025.json"

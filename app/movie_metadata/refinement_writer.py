@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from movie_metadata.models import MetadataRefinementResult
+from movie_metadata.models import BatchRefinementResult, MetadataRefinementResult
 
 
 class RefinementResultWriter:
@@ -39,6 +39,32 @@ class RefinementResultWriter:
         with file_path.open("w", encoding="utf-8") as f:
             json.dump(
                 result.model_dump(),
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+    def write_batch(
+        self, batch_result: BatchRefinementResult, output_dir: Path
+    ) -> None:
+        """
+        バッチ処理の結果をJSON形式で保存する
+
+        Args:
+            batch_result: バッチ処理の結果
+            output_dir: 出力先ディレクトリパス
+
+        出力ファイル名: batch_refinement_result_{YYYYMMDD}_{HHMMSS}.json
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"batch_refinement_result_{timestamp}.json"
+        file_path = output_dir / filename
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        with file_path.open("w", encoding="utf-8") as f:
+            json.dump(
+                batch_result.model_dump(),
                 f,
                 ensure_ascii=False,
                 indent=2,

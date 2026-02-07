@@ -57,14 +57,14 @@
 
 **受け入れ基準:**
 
-- [ ] `movie_metadata/refinement_writer.py`の`RefinementResultWriter`クラスを拡張する
-- [ ] 新しいメソッド`write_batch(batch_result: BatchRefinementResult, output_dir: Path)`を追加する
-- [ ] 出力ファイル名のフォーマットは`batch_refinement_result_{YYYYMMDD}_{HHMMSS}.json`とする（例：`batch_refinement_result_20260207_143025.json`）
-- [ ] `BatchRefinementResult`を適切にシリアライズしてJSON形式で保存する
-- [ ] 品質チェック（フォーマット、Lint、型チェック）が通過すること
-- [ ] 単体テストを作成し合格すること
-- [ ] テストカバレッジが基準値を満たすこと
-- [ ] コンソール出力やファイル出力で変更が正しく反映されることを確認する
+- [x] `movie_metadata/refinement_writer.py`の`RefinementResultWriter`クラスを拡張する
+- [x] 新しいメソッド`write_batch(batch_result: BatchRefinementResult, output_dir: Path)`を追加する
+- [x] 出力ファイル名のフォーマットは`batch_refinement_result_{YYYYMMDD}_{HHMMSS}.json`とする（例：`batch_refinement_result_20260207_143025.json`）
+- [x] `BatchRefinementResult`を適切にシリアライズしてJSON形式で保存する
+- [x] 品質チェック（フォーマット、Lint、型チェック）が通過すること
+- [x] 単体テストを作成し合格すること
+- [x] テストカバレッジが基準値を満たすこと
+- [x] コンソール出力やファイル出力で変更が正しく反映されることを確認する
 
 ### US-004: 複数レコードのループ処理と進捗表示を実装
 

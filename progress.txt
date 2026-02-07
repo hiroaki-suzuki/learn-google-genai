@@ -37,3 +37,15 @@
 - `BatchRefinementResult`の`errors`は`list[dict[str, str]]`で保持し、映画タイトルとエラーメッセージを格納する
 - モデル追加時は既存テストのフィクスチャを再利用するとテストが簡潔になる
 ---
+## イテレーション 3 - US-003: タイムスタンプ付きファイル名でJSON出力する機能を実装
+- 実装内容
+- `RefinementResultWriter.write_batch()`を追加し、バッチ結果をタイムスタンプ付きファイル名でJSON出力するようにした
+- `write_batch()`の単体テストを追加し、ファイル名形式・ディレクトリ作成・JSON内容を検証した
+- 変更したファイル
+- `app/movie_metadata/refinement_writer.py`
+- `app/tests/test_refinement_writer.py`
+- `PRD.md`
+- 今後のイテレーションに向けた学習事項：
+- タイムスタンプ依存のテストは`datetime`のモックで固定値にすると安定する
+- バッチJSON出力は`model_dump()`をそのまま使うと構造が揃う
+---
