@@ -22,7 +22,11 @@ class MovieMetadata(BaseModel):
         description="配給会社。日本での配給会社を優先。情報が見つからない場合は「情報なし」と記載。"
     )
     box_office: str = Field(
-        description="興行収入。世界興行収入または主要市場の興行収入。通貨単位を含む（例: $395 million）。情報が見つからない場合は「情報なし」と記載。"
+        description=(
+            "興行収入。世界興行収入または主要市場の興行収入。"
+            "通貨単位を含む（例: $395 million）。"
+            "情報が見つからない場合は「情報なし」と記載。"
+        )
     )
     cast: list[str] = Field(
         description="主要な出演者のリスト（最大5名）。情報が見つからない場合は空のリストまたは['情報なし']を返す。"

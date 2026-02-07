@@ -1,54 +1,67 @@
 import csv
+import logging
 from pathlib import Path
 
 from movie_metadata.models import MovieInput
 
+logger = logging.getLogger(__name__)
 
-def read_movies_csv(csv_path: str) -> list[MovieInput]:
+
+class CSVReader:
+    """CSV読み込みクラス
+
+    CSVファイルから映画情報を読み込む機能を提供します。
     """
-    CSVファイルから映画情報を読み込む
 
-    Args:
-        csv_path: CSVファイルのパス
+    def read(self, csv_path: Path) -> list[MovieInput]:
+        """CSVファイルから映画情報を読み込む
 
-    Returns:
-        MovieInputのリスト
+        Args:
+            csv_path: CSVファイルのパス
 
-    Raises:
-        FileNotFoundError: CSVファイルが存在しない場合
-        ValueError: CSVフォーマットが不正な場合
-    """
-    path = Path(csv_path)
+        Returns:
+            MovieInputのリスト
 
-    if not path.exists():
-        raise FileNotFoundError(f"CSVファイルが見つかりません: {csv_path}")
+        Raises:
+            FileNotFoundError: CSVファイルが存在しない場合
+            ValueError: CSVフォーマットが不正な場合
+        """
+        logger.debug(f"Reading CSV from: {csv_path}")
 
-    movies: list[MovieInput] = []
+        if not csv_path.exists():
+            logger.error(f"CSV file not found: {csv_path}")
+            raise FileNotFoundError(f"CSVファイルが見つかりません: {csv_path}")
 
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
+        movies: list[MovieInput] = []
 
-            # ヘッダーチェック
-            required_fields = {"title", "release_date", "country"}
-            if not required_fields.issubset(set(reader.fieldnames or [])):
-                raise ValueError(
-                    f"CSVに必要なフィールドがありません。必要: {required_fields}"
-                )
+        try:
+            with csv_path.open("r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
 
-            for row_num, row in enumerate(reader, start=2):  # ヘッダー行は1行目
-                try:
-                    movie = MovieInput(
-                        title=row["title"],
-                        release_date=row["release_date"],
-                        country=row["country"],
+                # ヘッダーチェック
+                required_fields = {"title", "release_date", "country"}
+                if not required_fields.issubset(set(reader.fieldnames or [])):
+                    raise ValueError(
+                        f"CSVに必要なフィールドがありません。必要: {required_fields}"
                     )
-                    movies.append(movie)
-                except Exception as e:
-                    print(f"警告: {row_num}行目のデータをスキップしました: {e}")
-                    continue
 
-    except Exception as e:
-        raise ValueError(f"CSVファイルの読み込みに失敗しました: {e}") from e
+                for row_num, row in enumerate(reader, start=2):
+                    try:
+                        movie = MovieInput(
+                            title=row["title"],
+                            release_date=row["release_date"],
+                            country=row["country"],
+                        )
+                        movies.append(movie)
+                    except Exception as e:
+                        logger.warning(f"Skipping row {row_num} due to error: {e}")
+                        continue
 
-    return movies
+        except ValueError:
+            raise
+        except Exception as e:
+            logger.error(f"Failed to read CSV file: {e}")
+            raise ValueError(f"CSVファイルの読み込みに失敗しました: {e}") from e
+
+        logger.info(f"Successfully read {len(movies)} movies from {csv_path}")
+        return movies

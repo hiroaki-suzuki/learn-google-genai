@@ -1,66 +1,55 @@
-import os
-import time
-from datetime import datetime
+import logging
 from pathlib import Path
 
-from movie_metadata.csv_reader import read_movies_csv
-from movie_metadata.json_writer import write_metadata_to_json
-from movie_metadata.metadata_fetcher import fetch_movie_metadata
+from config import AppConfig
+from logging_config import setup_logging
+from movie_metadata.csv_reader import CSVReader
+from movie_metadata.genai_client import GenAIClient
+from movie_metadata.json_writer import JSONWriter
+from movie_metadata.metadata_service import MetadataService
+
+logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     """映画メタ情報取得システムのメインエントリーポイント"""
-    print("=== 映画メタ情報取得システム ===\n")
+    # 設定読み込み
+    config = AppConfig()
 
-    # 環境変数からAPIキー取得
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        print("エラー: GEMINI_API_KEYが設定されていません")
-        return
+    # ロギング設定
+    setup_logging(config.log_level)
+    logger.info("=== 映画メタ情報取得システム起動 ===")
 
-    # パス設定
-    csv_path = Path(__file__).parent / "data" / "movies_test3.csv"
-    output_dir = Path(__file__).parent / "data" / "output"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # コンテキストマネージャーでクライアントを管理
+    with GenAIClient(
+        api_key=config.gemini_api_key,
+        model_name=config.model_name,
+    ) as client:
+        # 依存コンポーネントの初期化
+        csv_reader = CSVReader()
+        json_writer = JSONWriter()
 
-    # CSV読み込み
-    try:
-        movies = read_movies_csv(str(csv_path))
-        print(f"✓ {len(movies)}件の映画情報を読み込みました\n")
-    except Exception as e:
-        print(f"エラー: {e}")
-        return
-
-    # 各映画のメタデータを取得
-    metadata_list = []
-    total = len(movies)
-
-    for i, movie in enumerate(movies, start=1):
-        print(f"[{i}/{total}] {movie.title} のメタデータを取得中...")
-
-        try:
-            metadata = fetch_movie_metadata(movie, api_key)
-            metadata_list.append(metadata)
-            print("  ✓ 取得完了")
-
-            # レート制限対策: 最後の映画以外は1秒待機
-            if i < total:
-                time.sleep(1)
-
-        except Exception as e:
-            print(f"  ✗ エラー: {e}")
-            continue
-
-    # JSON出力
-    if metadata_list:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = output_dir / f"movie_metadata_{timestamp}.json"
-        write_metadata_to_json(metadata_list, str(output_path))
-        print(
-            f"\n=== 完了: {len(metadata_list)}/{total}件のメタデータを取得しました ==="
+        # サービス初期化（依存性注入）
+        service = MetadataService(
+            client=client,
+            csv_reader=csv_reader,
+            json_writer=json_writer,
+            rate_limit_sleep=config.rate_limit_sleep,
         )
-    else:
-        print("\nエラー: メタデータを取得できませんでした")
+
+        # パス設定
+        csv_path = Path(__file__).parent / config.csv_path
+        output_dir = Path(__file__).parent / config.output_dir
+
+        # 処理実行
+        try:
+            result = service.process(csv_path, output_dir)
+            logger.info(
+                f"処理結果: {result['success']}/{result['total']}件成功, "
+                f"{result['failed']}件失敗"
+            )
+        except Exception as e:
+            logger.error(f"処理中にエラーが発生しました: {e}")
 
 
 if __name__ == "__main__":

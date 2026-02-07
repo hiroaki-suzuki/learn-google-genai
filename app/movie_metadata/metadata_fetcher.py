@@ -1,7 +1,11 @@
-from google import genai
-from google.genai import types
+import logging
 
+from google.genai import errors
+
+from movie_metadata.genai_client import GenAIClient
 from movie_metadata.models import MovieInput, MovieMetadata
+
+logger = logging.getLogger(__name__)
 
 
 def _build_input_info(movie_input: MovieInput) -> str:
@@ -17,22 +21,25 @@ def _build_input_info(movie_input: MovieInput) -> str:
 
 def fetch_movie_metadata(
     movie_input: MovieInput,
-    api_key: str,
+    client: GenAIClient,
 ) -> MovieMetadata:
     """
     Google Search groundingで映画メタデータを取得
 
     Args:
         movie_input: 映画の基本情報
-        api_key: Google GenAI APIキー
+        client: GenAIClientインスタンス
 
     Returns:
         MovieMetadata: 取得したメタデータ
 
     Raises:
-        Exception: API呼び出しまたはパースに失敗した場合
+        errors.ClientError: クライアントエラー
+        errors.ServerError: サーバーエラー
+        errors.APIError: その他のAPIエラー
+        Exception: 予期しないエラー
     """
-    client = genai.Client(api_key=api_key)
+    logger.info(f"Fetching metadata for: {movie_input.title}")
 
     # プロンプト作成（descriptionを活用）
     input_info = _build_input_info(movie_input)
@@ -58,26 +65,31 @@ def fetch_movie_metadata(
 """
 
     try:
-        # API呼び出し
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                tools=[types.Tool(google_search=types.GoogleSearch())],
-                response_mime_type="application/json",
-                response_schema=MovieMetadata,
-            ),
+        response_text = client.generate_content(
+            prompt,
+            response_schema=MovieMetadata,
+            use_google_search=True,
         )
 
         # Pydanticモデルでパース
-        if response.text is None:
-            raise ValueError("API応答が空です")
-        metadata = MovieMetadata.model_validate_json(response.text)
+        metadata = MovieMetadata.model_validate_json(response_text)
+        logger.info(f"Successfully fetched metadata for {movie_input.title}")
         return metadata
 
-    except Exception as e:
-        # エラーが発生した場合はデフォルト値で返す
-        print(f"  警告: メタデータ取得に失敗しました ({type(e).__name__}: {e})")
+    except errors.ClientError as e:
+        logger.error(f"Client error for {movie_input.title}: {e}")
+        raise
+    except errors.ServerError as e:
+        logger.error(f"Server error for {movie_input.title}: {e}")
+        raise
+    except errors.APIError as e:
+        logger.error(f"API error for {movie_input.title}: {e}")
+        raise
+    except ValueError as e:
+        # 空のレスポンスの場合はデフォルト値で返す
+        logger.warning(
+            f"Returning default metadata for {movie_input.title} due to: {e}"
+        )
         return MovieMetadata(
             title=movie_input.title,
             japanese_titles=["情報なし"],
@@ -89,3 +101,7 @@ def fetch_movie_metadata(
             music=["情報なし"],
             voice_actors=["情報なし"],
         )
+    except Exception:
+        # 予期しないエラーの場合はログに記録して再送出
+        logger.exception(f"Unexpected error for {movie_input.title}")
+        raise
