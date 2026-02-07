@@ -1,0 +1,72 @@
+# 進捗記録
+
+## 得られた知見
+
+## イテレーション 1 - pytest-covの依存関係追加とカバレッジ測定環境の構築
+- 実装内容
+  - pyproject.tomlのdev依存関係にpytest-cov>=6.0.0を追加
+  - カバレッジ測定コマンドを実行してベースラインを確認（全体50%）
+  - progress.txtに各モジュールのカバレッジベースラインを記録
+- 変更したファイル
+  - app/pyproject.toml: pytest-covを追加
+  - progress.txt: カバレッジベースラインを記録
+- 今後のイテレーションに向けた学習事項：
+  - pytest-covはすでに最新版（7.0.0）がインストールされた
+  - 現在4つのモジュール（csv_reader, genai_client, json_writer, metadata_service）は既にテストがあり、100%または80%以上のカバレッジを達成している
+  - 7つのモジュール（evaluator, improvement_proposer, metadata_fetcher, prompts, refinement_writer, refiner）はテストが不足している
+  - models.pyは既に100%カバレッジを達成している
+  - 全体カバレッジを50%から90%に引き上げるには、未テストまたは低カバレッジのモジュールを優先的に対応する必要がある
+
+---
+
+## カバレッジ記録
+
+### ベースライン（US-001完了時）
+- 全体カバレッジ: 50%
+- 各モジュール:
+  - csv_reader.py: 81%
+  - genai_client.py: 100%
+  - json_writer.py: 82%
+  - metadata_service.py: 100%
+  - evaluator.py: 0%
+  - improvement_proposer.py: 0%
+  - metadata_fetcher.py: 29%
+  - prompts.py: 23%
+  - refinement_writer.py: 0%
+  - refiner.py: 0%
+  - models.py: 100%
+
+### US-002完了時（models.py）
+- models.py: -%
+
+### US-003完了時（prompts.py）
+- prompts.py: -%
+
+### US-004完了時（metadata_fetcher.py）
+- metadata_fetcher.py: -%
+
+### US-005完了時（evaluator.py）
+- evaluator.py: -%
+
+### US-006完了時（improvement_proposer.py）
+- improvement_proposer.py: -%
+
+### US-007完了時（refinement_writer.py）
+- refinement_writer.py: -%
+
+### US-008完了時（refiner.py）
+- refiner.py: -%
+
+### US-009完了時（csv_reader, json_writer）
+- csv_reader.py: -%
+- json_writer.py: -%
+
+### US-010完了時（genai_client, metadata_service）
+- genai_client.py: -%
+- metadata_service.py: -%
+
+### US-011完了時（最終カバレッジ）
+- 全体カバレッジ: -%
+- 目標達成: [ ] 90%以上
+
+---
