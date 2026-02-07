@@ -1,0 +1,31 @@
+# 進捗記録
+
+## 得られた知見
+
+（実装過程で発見されたパターンや知見）
+
+---
+
+## イテレーション 1 - メタデータ品質評価用のデータモデルを定義（US-001）
+- 実装内容: MetadataFieldScore、MetadataEvaluationResult、RefinementHistoryEntry、MetadataRefinementResult、MetadataEvaluationOutputの5つのモデルを追加
+- 変更したファイル: app/movie_metadata/models.py、PRD.md
+- 今後のイテレーションに向けた学習事項：
+  - llm_judge/models.pyの既存パターン（AspectScore、DirectAssessmentResult、SelfRefinementResult）を参考にすると、一貫性のあるモデル設計ができる
+  - Pydanticのgeとleバリデータを使用して、スコア範囲（0.0〜5.0）を強制できる
+  - descriptionフィールドが長い場合は、括弧でくくって複数行に分割すると88文字制限に対応できる
+  - LLM出力用のスキーマ（MetadataEvaluationOutput）は、実際の結果モデル（MetadataEvaluationResult）と分けることで、構造化出力の柔軟性を確保できる
+---
+
+## イテレーション 2 - メタデータ評価機能を実装（US-002）
+- 実装内容: MetadataEvaluatorクラスとメタデータ評価用プロンプトテンプレートを追加
+- 変更したファイル:
+  - app/movie_metadata/prompts.py（新規作成）
+  - app/movie_metadata/evaluator.py（新規作成）
+  - PRD.md
+- 今後のイテレーションに向けた学習事項：
+  - llm_judge/direct_assessment.pyのパターン（プロンプト構築→API呼び出し→パース→結果構築）を踏襲することで、一貫性のある実装ができる
+  - GenAIClientはコンテキストマネージャーとして使用するのが推奨（with文でリソース管理を自動化）
+  - プロンプトテンプレートは別ファイル（prompts.py）に分離し、プロンプト構築関数を提供すると保守性が高い
+  - 88文字制限を超える場合、計算結果を別変数に分割するか、ログメッセージを複数行に分割する
+  - プロンプトテンプレート内の長い行は、意味の区切りで改行を入れて対応できる
+---

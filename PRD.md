@@ -32,13 +32,13 @@
 **説明：** 開発者として、MovieMetadataの各項目をLLM as a Judge（Direct Assessment）で評価する機能が必要である。これにより、データ品質を定量的に測定できる。
 
 **受け入れ基準：**
-- [ ] `MetadataEvaluator`クラスを`movie_metadata/evaluator.py`に作成
-- [ ] `evaluate(metadata: MovieMetadata) -> MetadataEvaluationResult`メソッドを実装
-- [ ] 評価対象フィールド: japanese_titles, distributor, box_office, cast, music, voice_actors
-- [ ] 各フィールドを0.0〜5.0のスコアで評価（Direct Assessment形式）
-- [ ] GenAIClientを使用してLLM評価を実行
-- [ ] スコアが3.5未満のフィールドに対する改善提案を含める
-- [ ] 型チェックが通過すること
+- [x] `MetadataEvaluator`クラスを`movie_metadata/evaluator.py`に作成
+- [x] `evaluate(metadata: MovieMetadata) -> MetadataEvaluationResult`メソッドを実装
+- [x] 評価対象フィールド: japanese_titles, distributor, box_office, cast, music, voice_actors
+- [x] 各フィールドを0.0〜5.0のスコアで評価（Direct Assessment形式）
+- [x] GenAIClientを使用してLLM評価を実行
+- [x] スコアが3.5未満のフィールドに対する改善提案を含める
+- [x] 型チェックが通過すること
 
 ### US-003: メタデータ改善提案生成機能を実装
 
