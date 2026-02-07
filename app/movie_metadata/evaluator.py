@@ -63,9 +63,13 @@ class MetadataEvaluator:
             release_date=metadata.release_date,
             country=metadata.country,
             japanese_titles=metadata.japanese_titles,
+            original_work=metadata.original_work,
+            original_authors=metadata.original_authors,
             distributor=metadata.distributor,
+            production_companies=metadata.production_companies,
             box_office=metadata.box_office,
             cast=metadata.cast,
+            screenwriters=metadata.screenwriters,
             music=metadata.music,
             voice_actors=metadata.voice_actors,
         )

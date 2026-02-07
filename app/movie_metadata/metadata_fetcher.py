@@ -95,11 +95,15 @@ class MovieMetadataFetcher:
             return MovieMetadata(
                 title=movie_input.title,
                 japanese_titles=["情報なし"],
+                original_work="情報なし",
+                original_authors=["情報なし"],
                 release_date=movie_input.release_date,
                 country=movie_input.country,
                 distributor="情報なし",
+                production_companies=["情報なし"],
                 box_office="情報なし",
                 cast=["情報なし"],
+                screenwriters=["情報なし"],
                 music=["情報なし"],
                 voice_actors=["情報なし"],
             )

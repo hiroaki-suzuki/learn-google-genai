@@ -22,9 +22,13 @@ class TestBuildMetadataEvaluationPrompt:
         release_date = "2024-01-01"
         country = "Japan"
         japanese_titles = ["テスト映画", "テストムービー"]
+        original_work = "原作作品"
+        original_authors = ["原作者A"]
         distributor = "テスト配給"
+        production_companies = ["制作会社X"]
         box_office = "$1,000,000"
         cast = ["俳優A", "俳優B"]
+        screenwriters = ["脚本家E"]
         music = ["作曲家C"]
         voice_actors = ["声優D"]
 
@@ -33,9 +37,13 @@ class TestBuildMetadataEvaluationPrompt:
             release_date=release_date,
             country=country,
             japanese_titles=japanese_titles,
+            original_work=original_work,
+            original_authors=original_authors,
             distributor=distributor,
+            production_companies=production_companies,
             box_office=box_office,
             cast=cast,
+            screenwriters=screenwriters,
             music=music,
             voice_actors=voice_actors,
         )
@@ -46,9 +54,13 @@ class TestBuildMetadataEvaluationPrompt:
         assert "Japan" in prompt
         assert "テスト映画" in prompt
         assert "テストムービー" in prompt
+        assert "原作作品" in prompt
+        assert "原作者A" in prompt
         assert "テスト配給" in prompt
+        assert "制作会社X" in prompt
         assert "$1,000,000" in prompt
         assert "俳優A" in prompt
+        assert "脚本家E" in prompt
         assert "作曲家C" in prompt
         assert "声優D" in prompt
 
@@ -63,9 +75,13 @@ class TestBuildMetadataEvaluationPrompt:
         release_date = "2024-01-01"
         country = "Japan"
         japanese_titles = []
+        original_work = "情報なし"
+        original_authors = []
         distributor = "配給なし"
+        production_companies = []
         box_office = "情報なし"
         cast = []
+        screenwriters = []
         music = []
         voice_actors = []
 
@@ -74,9 +90,13 @@ class TestBuildMetadataEvaluationPrompt:
             release_date=release_date,
             country=country,
             japanese_titles=japanese_titles,
+            original_work=original_work,
+            original_authors=original_authors,
             distributor=distributor,
+            production_companies=production_companies,
             box_office=box_office,
             cast=cast,
+            screenwriters=screenwriters,
             music=music,
             voice_actors=voice_actors,
         )
@@ -91,9 +111,13 @@ class TestBuildMetadataEvaluationPrompt:
         release_date = "2024-01-01"
         country = "Japan"
         japanese_titles = ["情報なし"]
+        original_work = "情報なし"
+        original_authors = ["情報なし"]
         distributor = "情報なし"
+        production_companies = ["情報なし"]
         box_office = "情報なし"
         cast = ["情報なし"]
+        screenwriters = ["情報なし"]
         music = ["情報なし"]
         voice_actors = ["情報なし"]
 
@@ -102,9 +126,13 @@ class TestBuildMetadataEvaluationPrompt:
             release_date=release_date,
             country=country,
             japanese_titles=japanese_titles,
+            original_work=original_work,
+            original_authors=original_authors,
             distributor=distributor,
+            production_companies=production_companies,
             box_office=box_office,
             cast=cast,
+            screenwriters=screenwriters,
             music=music,
             voice_actors=voice_actors,
         )
@@ -125,11 +153,15 @@ class TestBuildImprovementProposalPrompt:
         current_metadata = MovieMetadata(
             title="Test Movie",
             japanese_titles=["テスト映画"],
+            original_work="原作作品",
+            original_authors=["原作者A"],
             release_date="2024-01-01",
             country="Japan",
             distributor="テスト配給",
+            production_companies=["制作会社X"],
             box_office="情報なし",
             cast=["俳優A"],
+            screenwriters=["脚本家E"],
             music=["作曲家B"],
             voice_actors=["声優C"],
         )
@@ -181,11 +213,15 @@ class TestBuildImprovementProposalPrompt:
         current_metadata = MovieMetadata(
             title="Pass Movie",
             japanese_titles=["パス映画"],
+            original_work="オリジナル",
+            original_authors=[],
             release_date="2024-01-01",
             country="Japan",
             distributor="パス配給",
+            production_companies=["制作会社Y"],
             box_office="$1,000,000",
             cast=["俳優A"],
+            screenwriters=["脚本家F"],
             music=["作曲家B"],
             voice_actors=["声優C"],
         )
@@ -229,11 +265,15 @@ class TestBuildImprovementProposalPrompt:
         current_metadata = MovieMetadata(
             title="Empty Movie",
             japanese_titles=[],
+            original_work="情報なし",
+            original_authors=[],
             release_date="2024-01-01",
             country="Japan",
             distributor="情報なし",
+            production_companies=[],
             box_office="情報なし",
             cast=["情報なし"],
+            screenwriters=[],
             music=[],
             voice_actors=[],
         )

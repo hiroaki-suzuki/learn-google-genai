@@ -41,11 +41,15 @@ class TestMovieMetadata:
         metadata = MovieMetadata(
             title="Test Movie",
             japanese_titles=["テスト映画"],
+            original_work="原作作品",
+            original_authors=["原作者A"],
             release_date="2024-01-01",
             country="Japan",
             distributor="配給会社A",
+            production_companies=["制作会社A"],
             box_office="$100M",
             cast=["俳優A", "俳優B"],
+            screenwriters=["脚本家A"],
             music=["作曲家C"],
             voice_actors=["声優D"],
         )
@@ -58,11 +62,15 @@ class TestMovieMetadata:
         metadata = MovieMetadata(
             title="Test Movie",
             japanese_titles=[],
+            original_work="情報なし",
+            original_authors=[],
             release_date="2024-01-01",
             country="Japan",
             distributor="情報なし",
+            production_companies=[],
             box_office="情報なし",
             cast=[],
+            screenwriters=[],
             music=[],
             voice_actors=[],
         )
@@ -75,11 +83,15 @@ class TestMovieMetadata:
             MovieMetadata(  # type: ignore
                 title="Test Movie",
                 japanese_titles=["テスト映画"],
+                original_work="原作作品",
+                original_authors=["原作者A"],
                 release_date="2024-01-01",
                 country="Japan",
                 distributor="配給会社A",
+                production_companies=["制作会社A"],
                 box_office="$100M",
                 cast=["俳優A"],
+                screenwriters=["脚本家A"],
                 music=["作曲家B"],
                 # voice_actorsが欠けている
             )

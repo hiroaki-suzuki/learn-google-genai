@@ -16,10 +16,29 @@ class MovieMetadata(BaseModel):
     japanese_titles: list[str] = Field(
         description="日本語タイトルのリスト。正式名称、略称、別名など複数の呼び方がある場合はすべて含める。日本の作品の場合は原題を含む。情報が見つからない場合は空のリストまたは['情報なし']を返す。"
     )
+    original_work: str = Field(
+        description=(
+            "原作。原作がある場合は作品名を記載。"
+            "オリジナルの場合は「オリジナル」。"
+            "情報が見つからない場合は「情報なし」と記載。"
+        )
+    )
+    original_authors: list[str] = Field(
+        description=(
+            "原作者のリスト。原作がオリジナルの場合は空のリスト。"
+            "情報が見つからない場合は空のリストまたは['情報なし']を返す。"
+        )
+    )
     release_date: str = Field(description="公開日（YYYY-MM-DD形式）")
     country: str = Field(description="制作国")
     distributor: str = Field(
         description="配給会社。日本での配給会社を優先。情報が見つからない場合は「情報なし」と記載。"
+    )
+    production_companies: list[str] = Field(
+        description=(
+            "制作会社のリスト（主要な会社）。情報が見つからない場合は"
+            "空のリストまたは['情報なし']を返す。"
+        )
     )
     box_office: str = Field(
         description=(
@@ -30,6 +49,11 @@ class MovieMetadata(BaseModel):
     )
     cast: list[str] = Field(
         description="主要な出演者のリスト（最大5名）。情報が見つからない場合は空のリストまたは['情報なし']を返す。"
+    )
+    screenwriters: list[str] = Field(
+        description=(
+            "脚本家のリスト。情報が見つからない場合は空のリストまたは['情報なし']を返す。"
+        )
     )
     music: list[str] = Field(
         description="楽曲または作曲家のリスト。主題歌や劇伴作曲家を含む。情報が見つからない場合は空のリストまたは['情報なし']を返す。"

@@ -36,11 +36,15 @@ def test_write_metadata_to_json_multiple_items(tmp_path: Path) -> None:
         MovieMetadata(
             title=f"Movie {i}",
             japanese_titles=[f"映画{i}"],
+            original_work="オリジナル",
+            original_authors=[],
             release_date=f"2024-0{i}-01",
             country="Japan",
             distributor="配給社",
+            production_companies=["制作会社"],
             box_office="$1M",
             cast=["俳優"],
+            screenwriters=["脚本家"],
             music=["作曲家"],
             voice_actors=["声優"],
         )
@@ -83,11 +87,15 @@ def test_write_metadata_to_json_japanese_characters(tmp_path: Path) -> None:
     metadata = MovieMetadata(
         title="千と千尋の神隠し",
         japanese_titles=["千と千尋の神隠し", "Sen to Chihiro no Kamikakushi"],
+        original_work="オリジナル",
+        original_authors=[],
         release_date="2001-07-20",
         country="日本",
         distributor="東宝",
+        production_companies=["スタジオジブリ"],
         box_office="308億円",
         cast=["柊瑠美", "入野自由"],
+        screenwriters=["宮崎駿"],
         music=["久石譲"],
         voice_actors=["柊瑠美", "入野自由"],
     )

@@ -26,24 +26,36 @@ METADATA_EVALUATION_PROMPT_TEMPLATE = """
 ### 1. japanese_titles (日本語タイトル)
 {japanese_titles}
 
-### 2. distributor (配給会社)
+### 2. original_work (原作)
+{original_work}
+
+### 3. original_authors (原作者)
+{original_authors}
+
+### 4. distributor (配給会社)
 {distributor}
 
-### 3. box_office (興行収入)
+### 5. production_companies (制作会社)
+{production_companies}
+
+### 6. box_office (興行収入)
 {box_office}
 
-### 4. cast (主要な出演者)
+### 7. cast (主要な出演者)
 {cast}
 
-### 5. music (楽曲または作曲家)
+### 8. screenwriters (脚本家)
+{screenwriters}
+
+### 9. music (楽曲または作曲家)
 {music}
 
-### 6. voice_actors (声優)
+### 10. voice_actors (声優)
 {voice_actors}
 
 ## 評価基準
 
-以下の6つのフィールドについて、それぞれ0.0〜5.0のスコアで評価してください。
+以下の10個のフィールドについて、それぞれ0.0〜5.0のスコアで評価してください。
 
 ### 評価観点
 
@@ -70,9 +82,13 @@ METADATA_EVALUATION_PROMPT_TEMPLATE = """
 ### フィールド別の評価ポイント
 
 - **japanese_titles**: 正式名称、略称、別名など複数の呼び方が含まれているか
+- **original_work**: 原作がある場合は作品名が明記されているか、オリジナルなら「オリジナル」と記載されているか
+- **original_authors**: 原作者が正確に記載されているか（オリジナルの場合は空でも可）
 - **distributor**: 日本での配給会社が明記されているか
+- **production_companies**: 主要な制作会社が適切にリストされているか
 - **box_office**: 通貨単位を含む具体的な金額が記載されているか
 - **cast**: 主要な出演者が適切な人数（最大5名程度）リストされているか
+- **screenwriters**: 脚本家が適切にリストされているか
 - **music**: 主題歌や劇伴作曲家など、具体的な楽曲情報が含まれているか
 - **voice_actors**: アニメの場合は日本語声優、実写の場合は
   吹き替え声優が適切にリストされているか
@@ -94,9 +110,13 @@ def build_metadata_evaluation_prompt(
     release_date: str,
     country: str,
     japanese_titles: list[str],
+    original_work: str,
+    original_authors: list[str],
     distributor: str,
+    production_companies: list[str],
     box_office: str,
     cast: list[str],
+    screenwriters: list[str],
     music: list[str],
     voice_actors: list[str],
 ) -> str:
@@ -107,9 +127,13 @@ def build_metadata_evaluation_prompt(
         release_date: 公開日
         country: 制作国
         japanese_titles: 日本語タイトルのリスト
+        original_work: 原作
+        original_authors: 原作者のリスト
         distributor: 配給会社
+        production_companies: 制作会社のリスト
         box_office: 興行収入
         cast: 主要な出演者のリスト
+        screenwriters: 脚本家のリスト
         music: 楽曲または作曲家のリスト
         voice_actors: 声優のリスト
 
@@ -123,14 +147,24 @@ def build_metadata_evaluation_prompt(
             return "情報なし"
         return "\n".join(f"  - {item}" for item in items)
 
+    def format_value(value: str) -> str:
+        """文字列を読みやすい形式に変換"""
+        if not value or value == "情報なし":
+            return "情報なし"
+        return value
+
     return METADATA_EVALUATION_PROMPT_TEMPLATE.format(
         title=title,
         release_date=release_date,
         country=country,
         japanese_titles=format_list(japanese_titles),
+        original_work=format_value(original_work),
+        original_authors=format_list(original_authors),
         distributor=distributor,
+        production_companies=format_list(production_companies),
         box_office=box_office,
         cast=format_list(cast),
+        screenwriters=format_list(screenwriters),
         music=format_list(music),
         voice_actors=format_list(voice_actors),
     )
@@ -156,19 +190,31 @@ IMPROVEMENT_PROPOSAL_PROMPT_TEMPLATE = """
 ### 1. japanese_titles (日本語タイトル)
 {japanese_titles}
 
-### 2. distributor (配給会社)
+### 2. original_work (原作)
+{original_work}
+
+### 3. original_authors (原作者)
+{original_authors}
+
+### 4. distributor (配給会社)
 {distributor}
 
-### 3. box_office (興行収入)
+### 5. production_companies (制作会社)
+{production_companies}
+
+### 6. box_office (興行収入)
 {box_office}
 
-### 4. cast (主要な出演者)
+### 7. cast (主要な出演者)
 {cast}
 
-### 5. music (楽曲または作曲家)
+### 8. screenwriters (脚本家)
+{screenwriters}
+
+### 9. music (楽曲または作曲家)
 {music}
 
-### 6. voice_actors (声優)
+### 10. voice_actors (声優)
 {voice_actors}
 
 ## 評価結果
@@ -223,6 +269,12 @@ def build_improvement_proposal_prompt(
             return "情報なし"
         return "\n".join(f"  - {item}" for item in items)
 
+    def format_value(value: str) -> str:
+        """文字列を読みやすい形式に変換"""
+        if not value or value == "情報なし":
+            return "情報なし"
+        return value
+
     # 評価結果のサマリーを構築
     evaluation_lines = []
     for field_score in evaluation.field_scores:
@@ -238,9 +290,13 @@ def build_improvement_proposal_prompt(
         release_date=movie_input.release_date,
         country=movie_input.country,
         japanese_titles=format_list(current_metadata.japanese_titles),
+        original_work=format_value(current_metadata.original_work),
+        original_authors=format_list(current_metadata.original_authors),
         distributor=current_metadata.distributor,
+        production_companies=format_list(current_metadata.production_companies),
         box_office=current_metadata.box_office,
         cast=format_list(current_metadata.cast),
+        screenwriters=format_list(current_metadata.screenwriters),
         music=format_list(current_metadata.music),
         voice_actors=format_list(current_metadata.voice_actors),
         evaluation_summary=evaluation_summary,
@@ -279,6 +335,18 @@ def build_metadata_fetch_prompt(
   英語など他の言語の情報を使用してください
 - 人名や固有名詞は、可能な限り日本語表記（カタカナまたは漢字）
   で提供してください
+
+## 出力するメタ情報
+- japanese_titles
+- original_work
+- original_authors
+- distributor
+- production_companies
+- box_office
+- cast
+- screenwriters
+- music
+- voice_actors
 
 ## エラーハンドリング
 - 情報が見つからない項目については「情報なし」と記載してください

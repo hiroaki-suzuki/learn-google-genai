@@ -135,11 +135,15 @@ class TestMovieMetadataFetcher:
         assert isinstance(result, MovieMetadata)
         assert result.title == sample_movie_input.title
         assert result.japanese_titles == ["情報なし"]
+        assert result.original_work == "情報なし"
+        assert result.original_authors == ["情報なし"]
         assert result.release_date == sample_movie_input.release_date
         assert result.country == sample_movie_input.country
         assert result.distributor == "情報なし"
+        assert result.production_companies == ["情報なし"]
         assert result.box_office == "情報なし"
         assert result.cast == ["情報なし"]
+        assert result.screenwriters == ["情報なし"]
         assert result.music == ["情報なし"]
         assert result.voice_actors == ["情報なし"]
 

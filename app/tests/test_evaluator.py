@@ -24,7 +24,22 @@ def sample_evaluation_output_pass() -> MetadataEvaluationOutput:
                 reasoning="正確な日本語タイトルが記載されている",
             ),
             MetadataFieldScore(
+                field_name="original_work",
+                score=4.0,
+                reasoning="原作が明確に記載されている",
+            ),
+            MetadataFieldScore(
+                field_name="original_authors",
+                score=3.8,
+                reasoning="原作者が適切に記載されている",
+            ),
+            MetadataFieldScore(
                 field_name="distributor", score=4.0, reasoning="配給会社が正確である"
+            ),
+            MetadataFieldScore(
+                field_name="production_companies",
+                score=3.9,
+                reasoning="制作会社が明確である",
             ),
             MetadataFieldScore(
                 field_name="box_office",
@@ -35,9 +50,19 @@ def sample_evaluation_output_pass() -> MetadataEvaluationOutput:
                 field_name="cast", score=4.2, reasoning="主要キャストが網羅されている"
             ),
             MetadataFieldScore(
+                field_name="screenwriters",
+                score=3.7,
+                reasoning="脚本家が記載されている",
+            ),
+            MetadataFieldScore(
                 field_name="music",
                 score=3.9,
                 reasoning="音楽担当者が正確に記載されている",
+            ),
+            MetadataFieldScore(
+                field_name="voice_actors",
+                score=3.6,
+                reasoning="声優情報が記載されている",
             ),
         ],
         improvement_suggestions="改善の必要なし",
@@ -55,9 +80,24 @@ def sample_evaluation_output_fail() -> MetadataEvaluationOutput:
                 reasoning="日本語タイトルが不足している",
             ),
             MetadataFieldScore(
+                field_name="original_work",
+                score=2.5,
+                reasoning="原作が不明確である",
+            ),
+            MetadataFieldScore(
+                field_name="original_authors",
+                score=2.0,
+                reasoning="原作者が不足している",
+            ),
+            MetadataFieldScore(
                 field_name="distributor",
                 score=2.5,
                 reasoning="配給会社の情報が不正確である",
+            ),
+            MetadataFieldScore(
+                field_name="production_companies",
+                score=3.0,
+                reasoning="制作会社が不足している",
             ),
             MetadataFieldScore(
                 field_name="box_office",
@@ -68,9 +108,19 @@ def sample_evaluation_output_fail() -> MetadataEvaluationOutput:
                 field_name="cast", score=4.0, reasoning="主要キャストが網羅されている"
             ),
             MetadataFieldScore(
+                field_name="screenwriters",
+                score=3.4,
+                reasoning="脚本家情報が不足している",
+            ),
+            MetadataFieldScore(
                 field_name="music",
                 score=3.5,
                 reasoning="音楽担当者が正確に記載されている",
+            ),
+            MetadataFieldScore(
+                field_name="voice_actors",
+                score=3.2,
+                reasoning="声優情報が不足している",
             ),
         ],
         improvement_suggestions="日本語タイトルに別名表記を追加してください。配給会社の正式名称を確認してください。",
@@ -106,7 +156,7 @@ def test_evaluate_success_pass(
 
         # 検証
         assert result.iteration == 1
-        assert len(result.field_scores) == 5
+        assert len(result.field_scores) == 10
         assert result.overall_status == "pass"
         assert all(score.score >= 3.5 for score in result.field_scores)
         assert result.improvement_suggestions == "改善の必要なし"
@@ -134,7 +184,7 @@ def test_evaluate_success_fail(
 
         # 検証
         assert result.iteration == 2
-        assert len(result.field_scores) == 5
+        assert len(result.field_scores) == 10
         assert result.overall_status == "fail"
         assert any(score.score < 3.5 for score in result.field_scores)
         assert "日本語タイトル" in result.improvement_suggestions

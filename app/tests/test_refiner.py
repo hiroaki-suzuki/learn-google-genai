@@ -26,11 +26,15 @@ def sample_movie_metadata() -> MovieMetadata:
     return MovieMetadata(
         title="Test Movie",
         japanese_titles=["テスト映画"],
+        original_work="オリジナル",
+        original_authors=[],
         release_date="2024-01-01",
         country="Japan",
         distributor="テスト配給",
+        production_companies=["テスト制作"],
         box_office="$1M",
         cast=["俳優A"],
+        screenwriters=["脚本家D"],
         music=["作曲家B"],
         voice_actors=["声優C"],
     )
