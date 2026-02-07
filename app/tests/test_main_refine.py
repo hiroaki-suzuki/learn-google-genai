@@ -140,3 +140,45 @@ def test_main_refine_processes_all_records_in_movies_csv(
 
     assert mock_refiner.refine.call_count == expected_count
     assert mock_writer.write_batch.call_count == 1
+
+
+def test_main_refine_writes_timestamped_batch_file(
+    tmp_path, monkeypatch, mocker, sample_refinement_result
+):
+    """タイムスタンプ付きのバッチ結果ファイルが生成されることを確認"""
+    dummy_config = SimpleNamespace(
+        gemini_api_key="test",
+        model_name="model",
+        rate_limit_sleep=0.0,
+        log_level="INFO",
+        csv_path=Path("data/movies.csv"),
+        output_dir=tmp_path,
+    )
+    mocker.patch("main_refine.AppConfig", return_value=dummy_config)
+    mocker.patch("main_refine.setup_logging")
+
+    movies = [MovieInput(title="Movie A", release_date="2024-01-01", country="Japan")]
+    mock_csv_reader = mocker.MagicMock()
+    mock_csv_reader.read.return_value = movies
+    mocker.patch("main_refine.CSVReader", return_value=mock_csv_reader)
+
+    mock_refiner = mocker.MagicMock()
+    mock_refiner.refine.return_value = sample_refinement_result
+    mocker.patch("main_refine.MetadataRefiner", return_value=mock_refiner)
+
+    from datetime import datetime as real_datetime
+
+    class FixedDateTime:
+        @classmethod
+        def now(cls):
+            return real_datetime(2026, 2, 7, 14, 30, 25)
+
+    monkeypatch.setattr(
+        "movie_metadata.refinement_writer.datetime",
+        FixedDateTime,
+    )
+
+    main_refine.main()
+
+    expected_file = tmp_path / "batch_refinement_result_20260207_143025.json"
+    assert expected_file.exists()
