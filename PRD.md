@@ -97,14 +97,14 @@ movie_metadataパッケージの全11モジュールに対して包括的なテ�
 **説明:** 開発者として、改善履歴のJSON出力機能をテストするため、test_refinement_writer.pyを作成したい。
 
 **受け入れ基準:**
-- [ ] tests/test_refinement_writer.pyファイルを作成する
-- [ ] RefinementWriterクラスのwrite()メソッドの正常系テストを実装する（tmp_pathを使用）
-- [ ] 出力されたJSONファイルの内容検証テストを実装する
-- [ ] ディレクトリが存在しない場合の自動作成テストを実装する
-- [ ] ファイル書き込み失敗時の例外処理テストを実装する
-- [ ] `uv run pytest tests/test_refinement_writer.py -v`が成功する
-- [ ] refinement_writer.pyのカバレッジを確認し、progress.txtに記録する
-- [ ] 型チェックが通過する
+- [x] tests/test_refinement_writer.pyファイルを作成する
+- [x] RefinementWriterクラスのwrite()メソッドの正常系テストを実装する（tmp_pathを使用）
+- [x] 出力されたJSONファイルの内容検証テストを実装する
+- [x] ディレクトリが存在しない場合の自動作成テストを実装する
+- [x] ファイル書き込み失敗時の例外処理テストを実装する
+- [x] `uv run pytest tests/test_refinement_writer.py -v`が成功する
+- [x] refinement_writer.pyのカバレッジを確認し、progress.txtに記録する
+- [x] 型チェックが通過する
 
 ### US-008: refiner.pyの統合テスト作成（モック使用）
 
