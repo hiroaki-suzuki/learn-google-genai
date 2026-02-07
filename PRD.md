@@ -57,10 +57,10 @@
 **説明：** 開発者として、改善提案を反映してメタデータを再取得する機能が必要である。これにより、評価スコアを向上させることができる。
 
 **受け入れ基準：**
-- [ ] `MovieMetadataFetcher`に`fetch_with_improvement(movie_input: MovieInput, improvement_instruction: str) -> MovieMetadata`メソッドを追加
-- [ ] 改善提案をプロンプトに組み込んでGoogle Searchで再検索
-- [ ] 既存の`fetch`メソッドとの共通ロジックを適切に抽出
-- [ ] 型チェックが通過すること
+- [x] `MovieMetadataFetcher`に`fetch_with_improvement(movie_input: MovieInput, improvement_instruction: str) -> MovieMetadata`メソッドを追加
+- [x] 改善提案をプロンプトに組み込んでGoogle Searchで再検索
+- [x] 既存の`fetch`メソッドとの共通ロジックを適切に抽出
+- [x] 型チェックが通過すること
 
 ### US-005: 評価・改善ループ統合機能を実装
 

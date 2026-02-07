@@ -9,6 +9,7 @@ from google.genai import errors
 
 from movie_metadata.genai_client import GenAIClient
 from movie_metadata.models import MovieInput, MovieMetadata
+from movie_metadata.prompts import build_metadata_fetch_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +51,12 @@ class MovieMetadataFetcher:
             lines.append(f"{description}: {value}")
         return "\n".join(lines)
 
-    def fetch(self, movie_input: MovieInput) -> MovieMetadata:
-        """映画のメタデータを取得
-
-        Google Search groundingを使用して、映画の詳細なメタデータを取得します。
+    def _fetch_metadata(self, movie_input: MovieInput, prompt: str) -> MovieMetadata:
+        """メタデータを取得する共通ロジック
 
         Args:
             movie_input: 映画の基本情報
+            prompt: 取得用プロンプト
 
         Returns:
             取得したメタデータ
@@ -67,34 +67,6 @@ class MovieMetadataFetcher:
             errors.APIError: その他のAPIエラー
             Exception: 予期しないエラー
         """
-        logger.info(f"メタデータを取得中: {movie_input.title}")
-
-        # プロンプト作成（descriptionを活用）
-        input_info = self._build_input_info(movie_input)
-
-        # NOTE: response_schemaのdescriptionがAPIに送信されるため、
-        # プロンプト内で出力項目を明示的に列挙する必要はない
-        prompt = f"""
-# 映画メタデータ取得タスク
-
-以下の映画について、最新の情報をGoogle Searchで検索し、
-詳細なメタデータを提供してください。
-
-## 映画情報
-{input_info}
-
-## 情報収集の指針
-- すべてのメタ情報は**日本語の情報を優先的に使用**してください
-- 日本語の情報が見つからない場合のみ、
-  英語など他の言語の情報を使用してください
-- 人名や固有名詞は、可能な限り日本語表記（カタカナまたは漢字）
-  で提供してください
-
-## エラーハンドリング
-- 情報が見つからない項目については「情報なし」と記載してください
-- リスト形式の項目で情報がない場合は、空のリストを返してください
-"""
-
         try:
             response_text = self._client.generate_content(
                 prompt,
@@ -118,7 +90,8 @@ class MovieMetadataFetcher:
             raise
         except ValueError as e:
             # 空のレスポンスの場合はデフォルト値で返す
-            logger.warning(f"{movie_input.title} のデフォルト値を返します（理由: {e}）")
+            warning_msg = f"{movie_input.title} のデフォルト値を返します（理由: {e}）"
+            logger.warning(warning_msg)
             return MovieMetadata(
                 title=movie_input.title,
                 japanese_titles=["情報なし"],
@@ -134,3 +107,56 @@ class MovieMetadataFetcher:
             # 予期しないエラーの場合はログに記録して再送出
             logger.exception(f"{movie_input.title} の予期しないエラー")
             raise
+
+    def fetch(self, movie_input: MovieInput) -> MovieMetadata:
+        """映画のメタデータを取得
+
+        Google Search groundingを使用して、映画の詳細なメタデータを取得します。
+
+        Args:
+            movie_input: 映画の基本情報
+
+        Returns:
+            取得したメタデータ
+
+        Raises:
+            errors.ClientError: クライアントエラー
+            errors.ServerError: サーバーエラー
+            errors.APIError: その他のAPIエラー
+            Exception: 予期しないエラー
+        """
+        logger.info(f"メタデータを取得中: {movie_input.title}")
+
+        # プロンプト作成（descriptionを活用）
+        input_info = self._build_input_info(movie_input)
+        prompt = build_metadata_fetch_prompt(input_info)
+
+        return self._fetch_metadata(movie_input, prompt)
+
+    def fetch_with_improvement(
+        self, movie_input: MovieInput, improvement_instruction: str
+    ) -> MovieMetadata:
+        """改善指示に基づいてメタデータを再取得
+
+        改善提案をプロンプトに組み込んでGoogle Searchで再検索します。
+
+        Args:
+            movie_input: 映画の基本情報
+            improvement_instruction: 改善指示
+
+        Returns:
+            取得したメタデータ
+
+        Raises:
+            errors.ClientError: クライアントエラー
+            errors.ServerError: サーバーエラー
+            errors.APIError: その他のAPIエラー
+            Exception: 予期しないエラー
+        """
+        logger.info(f"改善指示に基づいてメタデータを再取得中: {movie_input.title}")
+
+        # プロンプト作成（改善指示を含む）
+        input_info = self._build_input_info(movie_input)
+        prompt = build_metadata_fetch_prompt(input_info, improvement_instruction)
+
+        return self._fetch_metadata(movie_input, prompt)

@@ -245,3 +245,56 @@ def build_improvement_proposal_prompt(
         voice_actors=format_list(current_metadata.voice_actors),
         evaluation_summary=evaluation_summary,
     )
+
+
+# ========================================
+# メタデータ再取得（改善版）用プロンプト
+# ========================================
+
+
+def build_metadata_fetch_prompt(
+    input_info: str, improvement_instruction: str | None = None
+) -> str:
+    """メタデータ取得用プロンプトを構築
+
+    Args:
+        input_info: 映画の基本情報
+        improvement_instruction: 改善指示（任意）
+
+    Returns:
+        構築されたプロンプト
+    """
+    base_prompt = f"""
+# 映画メタデータ取得タスク
+
+以下の映画について、最新の情報をGoogle Searchで検索し、
+詳細なメタデータを提供してください。
+
+## 映画情報
+{input_info}
+
+## 情報収集の指針
+- すべてのメタ情報は**日本語の情報を優先的に使用**してください
+- 日本語の情報が見つからない場合のみ、
+  英語など他の言語の情報を使用してください
+- 人名や固有名詞は、可能な限り日本語表記（カタカナまたは漢字）
+  で提供してください
+
+## エラーハンドリング
+- 情報が見つからない項目については「情報なし」と記載してください
+- リスト形式の項目で情報がない場合は、空のリストを返してください
+"""
+
+    if improvement_instruction:
+        improvement_section = f"""
+## 改善指示
+
+前回の取得結果を改善するために、以下の点に注意してください：
+
+{improvement_instruction}
+
+上記の指示に従って、より正確で詳細な情報を取得してください。
+"""
+        return base_prompt + improvement_section
+
+    return base_prompt
